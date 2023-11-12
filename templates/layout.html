@@ -15,15 +15,20 @@
     <div class="container">
         <nav class="navbar navbar-expand-lg bg-light">
             <div class="container-fluid">
-              <a class="navbar-brand" href="#">Fourier</a>
+              <a class="navbar-brand" href="/">Fourier</a>
               <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
               </button>
               <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
                 <div class="navbar-nav">
-                  <a class="nav-link" aria-current="page" href="/login">Login</a>
-                  <a class="nav-link" href="/register">Register</a>
-                  <a class="nav-link" href="/admin">Admin</a>
+                  {% if current_user.is_authenticated %}
+                  <a class="nav-link" aria-current="page" href="/account">Account</a>
+                    <a class="nav-link" aria-current="page" href="/logout">Logout</a>
+                  {% else %}
+                    <a class="nav-link" aria-current="page" href="/login">Login</a>
+                    <a class="nav-link" href="/register">Register</a>
+                    <a class="nav-link" href="/admin">Admin</a>
+                  {% endif %}
                 </div>
               </div>
             </div>
