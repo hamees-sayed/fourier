@@ -18,7 +18,7 @@ class User(db.Model, UserMixin):
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     
     def get_id(self):
-           return (self.user_id)
+        return (self.user_id)
 
 class Creator(db.Model):
     __tablename__ = "creator"
