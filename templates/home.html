@@ -1,8 +1,18 @@
 {% extends "layout.html" %}
 {% block content %}
-    <body>
-        <div class="container">
-            <h1>Home</h1>
+
+<body>
+    {% if not current_user.is_authenticated %}
+    <div class="main">
+        <h1>Fourier</h1>
+        <h3>Dive into the world of Music today.</h3>
+        <div class="buttons">
+            <a href="{{ url_for('register') }}" class="btn btn-light border" role="button">Register</a>
+            <a href="{{ url_for('login') }}" class="btn btn-light border" role="button">Login</a>
         </div>
-    </body>
+    </div>
+    {% else %}
+    <h1>Songs</h1>
+    {% endif %}
+</body>
 {% endblock %}
