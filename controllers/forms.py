@@ -24,3 +24,8 @@ class LoginForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired(), Length(min=8)])
     submit = SubmitField('Login')
+    
+class NewAlbumForm(FlaskForm):
+    album_name = StringField('Album Name', validators=[DataRequired(), Length(min=2, max=100)])
+    genre = StringField('Genre', validators=[DataRequired(), Length(min=2, max=100)])
+    submit = SubmitField('Create Album')

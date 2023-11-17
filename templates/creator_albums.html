@@ -1,0 +1,25 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<body>
+    <div class="container">
+        <h1>Your Albums</h1>
+        <div class="buttons">
+            <a href="{{ url_for('new_album') }}" class="btn btn-light border" role="button">Create a new Album</a>
+        </div>
+        <br>
+        <br>
+        {% for album in albums %}
+        <div class="card w-75">
+            <div class="card-body">
+                <h5 class="card-title">{{album.album_name}}</h5>
+                <p class="card-text">{{album.genre}}</p>
+                <a href="#" class="btn btn-primary">Update</a>
+                <a href="{{ url_for('delete_album', album_id=album.album_id) }}" class="btn btn-primary">Delete</a>
+            </div>
+        </div>
+        <br>
+        {% endfor %}
+    </div>
+</body>
+{% endblock %}

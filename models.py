@@ -16,6 +16,7 @@ class User(db.Model, UserMixin):
     is_creator = db.Column(db.Boolean, nullable=False, default=False)
     is_admin = db.Column(db.Boolean, nullable=False, default=False)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    creator = db.relationship("Creator", backref="user", uselist=False)
     
     def get_id(self):
         return (self.user_id)

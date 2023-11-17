@@ -6,3 +6,5 @@ python-dotenv
 email-validator
 Flask-Bcrypt
 Flask-Login
+Flask-RESTful
+Flask-Migrate

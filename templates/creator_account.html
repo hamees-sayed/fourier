@@ -2,8 +2,11 @@
 {% block content %}
     <body>
         <div class="container">
-            <h1>Creator</h1>
-            <h2>{{ current_user.username }}</h2>
+            <h1>Creator: {{ current_user.username }}</h1>
+            <div class="buttons">
+                <a href="{{ url_for('albums') }}" class="btn btn-light border" role="button">View your Albums</a>
+                <a href="{{ url_for('albums') }}" class="btn btn-light border" role="button">View your Songs</a>
+            </div>
         </div>
     </body>
 {% endblock %}
