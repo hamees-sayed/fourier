@@ -29,3 +29,8 @@ class NewAlbumForm(FlaskForm):
     album_name = StringField('Album Name', validators=[DataRequired(), Length(min=2, max=100)])
     genre = StringField('Genre', validators=[DataRequired(), Length(min=2, max=100)])
     submit = SubmitField('Create Album')
+
+class UpdateAlbumForm(FlaskForm):
+    album_name = StringField('Album Name', validators=[DataRequired(), Length(min=2, max=100)])
+    genre = StringField('Genre', validators=[DataRequired(), Length(min=2, max=100)])
+    submit = SubmitField('Update Album')

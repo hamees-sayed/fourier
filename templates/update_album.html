@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% block content %}
     <div class="container">
-        <form method="POST" action="{{ url_for('new_album') }}">
+        <form method="POST" action="{{ url_for('update_album', album_id=album.album_id) }}">
             {{ form.hidden_tag() }}
             <fieldset class="form-group">
                 <legend class="border-bottom mb-2">Create a New Album</legend>

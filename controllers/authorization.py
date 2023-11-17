@@ -9,6 +9,10 @@ from models import User
 def home():
     return render_template("home.html", title="Home")
 
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html', title='404'), 404
+
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if current_user.is_authenticated:
