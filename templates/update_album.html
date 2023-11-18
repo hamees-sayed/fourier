@@ -4,7 +4,7 @@
         <form method="POST" action="{{ url_for('update_album', album_id=album.album_id) }}">
             {{ form.hidden_tag() }}
             <fieldset class="form-group">
-                <legend class="border-bottom mb-2">Create a New Album</legend>
+                <legend class="border-bottom mb-2">Update Album</legend>
                 <div class="form-group">
                     {{ form.album_name.label(class="form-control-label") }}
                     {% if form.album_name.errors %}

@@ -1,5 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField
+from flask_wtf.file import FileField, FileRequired, FileAllowed
+from wtforms import StringField, PasswordField, SubmitField, RadioField, TextAreaField, BooleanField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 from models import User, Album
 
@@ -39,3 +40,17 @@ class UpdateAlbumForm(FlaskForm):
     album_name = StringField('Album Name', validators=[DataRequired(), Length(min=2, max=100)])
     genre = StringField('Genre', validators=[DataRequired(), Length(min=2, max=100)])
     submit = SubmitField('Update Album')
+
+class NewSongForm(FlaskForm):
+    song_title = StringField('Song Title', validators=[DataRequired(), Length(min=2, max=100)])
+    song_file = FileField('Upload a Song', validators=[FileRequired(), FileAllowed(['mp3'])])
+    lyrics = TextAreaField('Add Lyrics', validators=[DataRequired()])
+    album = RadioField('Select Album', coerce=int)
+    submit = SubmitField('Create Song')
+
+class UpdateSongForm(FlaskForm):
+    song_title = StringField('Song Title', validators=[DataRequired(), Length(min=2, max=100)])
+    song_file = FileField('Upload a Song', validators=[FileRequired(), FileAllowed(['mp3'])])
+    lyrics = TextAreaField('Add Lyrics', validators=[DataRequired()])
+    album = RadioField('Select Album', coerce=int)
+    submit = SubmitField('Update Song')

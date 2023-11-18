@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<body>
+    <div class="container">
+        <h1>Your Songs</h1>
+        <div class="buttons">
+            <a href="{{ url_for('new_song') }}" class="btn btn-light border" role="button">Create a new Song</a>
+        </div>
+        <br>
+        <br>
+        {% for song in songs %}
+        <div class="card w-75">
+            <div class="card-body">
+                <h5 class="card-title">{{song.song_title}}</h5>
+                <p class="card-text">{{song.lyrics}}</p>
+                <audio class="w-100" controls>
+                    <source src="{{ url_for('static', filename='songs/'+song.song_file) }}" type="audio/mp3" />
+                </audio>
+                <a href="{{ url_for('update_song', song_id=song.song_id) }}" class="btn btn-primary">Update</a>
+                <a href="{{ url_for('delete_song', song_id=song.song_id) }}" class="btn btn-primary">Delete</a>
+            </div>
+        </div>
+        <br>
+        {% endfor %}
+    </div>
+</body>
+{% endblock %}

@@ -1,9 +1,12 @@
 from functools import wraps
+import secrets
+import os
+from mutagen.mp3 import MP3
 from flask import render_template, flash, redirect, url_for, request
 from flask_login import current_user
-from controllers.forms import NewAlbumForm, UpdateAlbumForm
+from controllers.forms import NewAlbumForm, UpdateAlbumForm, NewSongForm, UpdateSongForm
 from controllers import app, db
-from models import User, Creator, Album
+from models import User, Creator, Album, Song
 
 
 def creator_required(func):
@@ -18,6 +21,37 @@ def creator_required(func):
         return func(*args, **kwargs)
 
     return decorated_function
+
+def save_song(song_file):
+    random_hex = secrets.token_hex(8)
+    _, f_ext = os.path.splitext(song_file.filename)
+    song_fn = random_hex + f_ext
+    current_file_path = os.path.abspath(__file__)
+    root_path = os.path.abspath(os.path.join(current_file_path, '..', '..'))
+    song_path = os.path.join(root_path, 'static/songs', song_fn)
+    song_file.save(song_path)
+
+    return song_fn
+
+def delete_song_file(file_name):
+    try:
+        file_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "static", "songs", file_name)
+        os.remove(file_path)
+        return True
+    except FileNotFoundError:
+        return False
+    except Exception as e:
+        return False
+    
+def song_duration(file_name):
+    current_file_path = os.path.abspath(__file__)
+    app_root_path = os.path.abspath(os.path.join(current_file_path, '..', '..'))
+    songs_folder_path = os.path.join(app_root_path, 'static/songs')
+    song_file_path = os.path.join(songs_folder_path, file_name)
+
+    audio = MP3(song_file_path)
+    duration_in_seconds = audio.info.length
+    return duration_in_seconds
 
 
 @app.route("/register_creator")
@@ -87,3 +121,84 @@ def update_album(album_id):
     else:
         flash("Album not found", "danger")
         return redirect(url_for("albums"))
+
+@app.route("/song/new", methods=["GET", "POST"])
+@creator_required
+def new_song():
+    form = NewSongForm()
+    creator_albums = Album.query.filter_by(creator_id=current_user.creator.creator_id).all()
+
+    form.album.choices = [(str(album.album_id), album.album_name) for album in creator_albums]
+
+    if form.validate_on_submit():
+        album_id = form.album.data
+        if not album_id or album_id == 0:
+            album_id = None
+
+        song_file = save_song(form.song_file.data)
+        song = Song(
+            album_id=album_id,
+            creator_id=current_user.creator.creator_id,
+            song_title=form.song_title.data,
+            song_file=song_file,
+            lyrics=form.lyrics.data,
+            duration=song_duration(song_file)
+        )
+        db.session.add(song)
+        db.session.commit()
+        return redirect(url_for("songs"))
+
+    return render_template("new_song.html", form=form, title="New Song", albums=creator_albums)
+
+@app.route("/song")
+@creator_required
+def songs():
+    song = Song.query.filter_by(creator_id=current_user.creator.creator_id).all()
+    return render_template("creator_songs.html", title="Album", songs = song)
+
+@app.route("/song/<int:song_id>/delete")
+@creator_required
+def delete_song(song_id):
+    song = Song.query.get(song_id)
+    if song:
+        delete_song_file(song.song_file)
+        db.session.delete(song)
+        db.session.commit()
+        flash("Song deleted successfully!", "success")
+        return redirect(url_for("songs"))
+    else:
+        flash("Song not found", "danger")
+        return redirect(url_for("songs"))
+
+
+@app.route("/song/<int:song_id>/update", methods=["GET", "POST"])
+@creator_required
+def update_song(song_id):
+    song = Song.query.get(song_id)
+    if song:
+        creator_albums = Album.query.filter_by(creator_id=current_user.creator.creator_id).all()
+        form = UpdateSongForm(obj=song)
+
+        form.album.choices = [(str(album.album_id), album.album_name) for album in creator_albums]
+
+        if form.validate_on_submit():
+            album_id = form.album.data
+            if not album_id:
+                album_id = None
+
+            song_file = save_song(form.song_file.data)
+            duration = song_duration(song_file)
+
+            song.album_id = album_id
+            song.song_title = form.song_title.data
+            song.song_file = song_file
+            song.lyrics = form.lyrics.data
+            song.duration = duration
+
+            db.session.commit()
+            flash('Song updated successfully!', 'success')
+            return redirect(url_for("songs"))
+        return render_template("update_song.html", form=form, title="Update Song", song=song)
+    else:
+        flash("Song not found", "danger")
+        return redirect(url_for("songs"))
