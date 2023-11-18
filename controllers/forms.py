@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
-from models import User
+from models import User, Album
 
 class RegistrationForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired(), Length(min=2, max=20)])
@@ -29,6 +29,11 @@ class NewAlbumForm(FlaskForm):
     album_name = StringField('Album Name', validators=[DataRequired(), Length(min=2, max=100)])
     genre = StringField('Genre', validators=[DataRequired(), Length(min=2, max=100)])
     submit = SubmitField('Create Album')
+
+    def validate_album_name(self, album_name):
+        album = Album.query.filter_by(album_name = album_name.data).first()
+        if album:
+            raise ValidationError("Album Name is taken. Please choose a different one.")
 
 class UpdateAlbumForm(FlaskForm):
     album_name = StringField('Album Name', validators=[DataRequired(), Length(min=2, max=100)])
