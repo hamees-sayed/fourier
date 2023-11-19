@@ -143,7 +143,7 @@ def songs():
     song = Song.query.filter_by(creator_id=current_user.creator.creator_id).all()
     return render_template("creator_songs.html", title="Album", songs = song, length=len(song))
 
-@app.route("/playlist/<int:song_id>/delete")
+@app.route("/song/<int:song_id>/delete")
 @creator_required
 def delete_song(song_id):
     song = Song.query.get(song_id)

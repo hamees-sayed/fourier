@@ -64,3 +64,9 @@ class UpdatePlaylistForm(FlaskForm):
     playlist_name = StringField('Playlist Name', validators=[DataRequired(), Length(min=2, max=100)])
     playlist_desc = StringField('Playlist Description', validators=[Length(min=0, max=300)])
     submit = SubmitField('Update Playlist')
+
+class AddSongToPlaylist(FlaskForm):
+    playlist = RadioField('Select Playlist', coerce=int)
+
+class RateSong(FlaskForm):
+    rating = RadioField('Select Rating', coerce=int)

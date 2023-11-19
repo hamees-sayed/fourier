@@ -2,7 +2,7 @@ from flask import render_template, flash, redirect, url_for
 from flask_login import current_user, login_required
 from controllers import app, db
 from controllers.forms import NewPlaylistForm, UpdatePlaylistForm
-from models import User, Playlist
+from models import User, Song, Playlist, Playlist_song
 
 @app.route("/register_creator")
 @login_required
@@ -60,3 +60,13 @@ def update_playlist(playlist_id):
     else:
         flash("Playlist not found", "danger")
         return redirect(url_for("account"))
+
+@app.route("/playlist/<int:playlist_id>")
+@login_required
+def get_playlist(playlist_id):
+    songs_in_playlist = Song.query.join(Playlist_song).filter(Playlist_song.playlist_id==playlist_id).all()
+    playlist = Playlist.query.get(playlist_id)
+    if not playlist:
+        flash("Playlist doesn't exist", "info")
+        return redirect(url_for("account"))
+    return render_template("playlist_songs.html", length=len(songs_in_playlist), songs=songs_in_playlist, playlist=playlist)

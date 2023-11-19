@@ -14,7 +14,7 @@
         <h4>You haven't created any Playlists yet.</h4>
         {% else %}
         {% for playlist in playlists %}
-        <a href="#",
+        <a href="{{ url_for('get_playlist', playlist_id=playlist.playlist_id) }}",
             style="text-decoration: none; color:#212529">
             <div class="card w-75">
                 <div class="card-body">
