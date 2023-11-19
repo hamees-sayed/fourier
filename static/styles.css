@@ -10,5 +10,7 @@ body {
     height: 100%;
     flex-direction: column;
 }
-  
-  
+
+audio::-webkit-media-controls-enclosure {
+  border-radius: 0;
+}

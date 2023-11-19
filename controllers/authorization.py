@@ -2,7 +2,7 @@ from flask import render_template, flash, redirect, url_for
 from flask_login import login_user, current_user, logout_user, login_required
 from controllers.forms import RegistrationForm, LoginForm
 from controllers import app, db, bcrypt
-from models import User
+from models import User, Playlist
 
 
 @app.route('/')
@@ -49,4 +49,5 @@ def logout():
 @app.route("/account")
 @login_required
 def account():
-    return render_template("account.html", title="Account")
+    playlists = Playlist.query.all()
+    return render_template("user_account.html", title="Account", playlists=playlists, length=len(playlists))

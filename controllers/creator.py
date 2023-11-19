@@ -1,5 +1,5 @@
 from functools import wraps
-import secrets
+import uuid
 import os
 from mutagen.mp3 import MP3
 from flask import render_template, flash, redirect, url_for, request
@@ -19,13 +19,12 @@ def creator_required(func):
             flash("Register as a creator first.", "info")
             return redirect(url_for("account"))
         return func(*args, **kwargs)
-
     return decorated_function
 
-def save_song(song_file):
-    random_hex = secrets.token_hex(8)
-    _, f_ext = os.path.splitext(song_file.filename)
-    song_fn = random_hex + f_ext
+def save_song_file(song_file):
+    random_string = str(uuid.uuid4().hex[:10])
+    base, extension = os.path.splitext(song_file.filename)
+    song_fn = f"{random_string}{extension}"
     current_file_path = os.path.abspath(__file__)
     root_path = os.path.abspath(os.path.join(current_file_path, '..', '..'))
     song_path = os.path.join(root_path, 'static/songs', song_fn)
@@ -53,18 +52,6 @@ def song_duration(file_name):
     duration_in_seconds = audio.info.length
     return duration_in_seconds
 
-
-@app.route("/register_creator")
-def register_creator():
-    user = User.query.filter_by(username=current_user.username).first()
-    if user:
-        user.is_creator = True
-        new_creator = Creator(user_id=user.user_id)
-        db.session.add(new_creator)
-        db.session.commit()
-        flash("You are now a creator!", "success")
-    return redirect(url_for("creator"))
-
 @app.route("/creator")
 @creator_required
 def creator():
@@ -87,7 +74,7 @@ def new_album():
 @creator_required
 def albums():
     album = Album.query.filter_by(creator_id=current_user.creator.creator_id).all()
-    return render_template("creator_albums.html", title="Album", albums = album)
+    return render_template("creator_albums.html", title="Album", albums = album, length=len(album))
     
 @app.route("/album/<int:album_id>/delete")
 @creator_required
@@ -135,7 +122,7 @@ def new_song():
         if not album_id or album_id == 0:
             album_id = None
 
-        song_file = save_song(form.song_file.data)
+        song_file = save_song_file(form.song_file.data)
         song = Song(
             album_id=album_id,
             creator_id=current_user.creator.creator_id,
@@ -154,9 +141,9 @@ def new_song():
 @creator_required
 def songs():
     song = Song.query.filter_by(creator_id=current_user.creator.creator_id).all()
-    return render_template("creator_songs.html", title="Album", songs = song)
+    return render_template("creator_songs.html", title="Album", songs = song, length=len(song))
 
-@app.route("/song/<int:song_id>/delete")
+@app.route("/playlist/<int:song_id>/delete")
 @creator_required
 def delete_song(song_id):
     song = Song.query.get(song_id)
@@ -186,7 +173,7 @@ def update_song(song_id):
             if not album_id:
                 album_id = None
 
-            song_file = save_song(form.song_file.data)
+            song_file = save_song_file(form.song_file.data)
             duration = song_duration(song_file)
 
             song.album_id = album_id
@@ -202,3 +189,10 @@ def update_song(song_id):
     else:
         flash("Song not found", "danger")
         return redirect(url_for("songs"))
+
+@app.route("/album/<int:album_id>")
+@creator_required
+def get_album(album_id):
+    songs = Song.query.filter_by(album_id=album_id).all()
+    album = Album.query.get(album_id)
+    return render_template("album_songs.html", length=len(songs), songs=songs, album=album)

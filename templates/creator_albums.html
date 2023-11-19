@@ -9,17 +9,23 @@
         </div>
         <br>
         <br>
+        {% if length == 0 %}
+        <h4>You haven't created any Albums yet. Create and share yours albums with the community now 📼</h4>
+        {% else %}
         {% for album in albums %}
-        <div class="card w-75">
-            <div class="card-body">
-                <h5 class="card-title">{{album.album_name}}</h5>
-                <p class="card-text">{{album.genre}}</p>
-                <a href="{{ url_for('update_album', album_id=album.album_id) }}" class="btn btn-primary">Update</a>
-                <a href="{{ url_for('delete_album', album_id=album.album_id) }}" class="btn btn-primary">Delete</a>
+        <a href="{{url_for('get_album', album_id=album.album_id)}}", style="text-decoration: none; color:#212529">
+            <div class="card w-75">
+                <div class="card-body">
+                    <h5 class="card-title mb-1">{{album.album_name}}</h5>
+                    <p class="card-text mb-3">Genre: {{album.genre}}</p>
+                    <a href="{{ url_for('update_album', album_id=album.album_id) }}" class="btn btn-primary">Update</a>
+                    <a href="{{ url_for('delete_album', album_id=album.album_id) }}" class="btn btn-primary">Delete</a>
+                </div>
             </div>
-        </div>
+        </a>
         <br>
         {% endfor %}
+        {% endif %}
     </div>
 </body>
 {% endblock %}

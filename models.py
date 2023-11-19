@@ -56,14 +56,13 @@ class Song(db.Model):
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     play_counter = db.Column(db.Integer, nullable=False, default=0)
     is_flagged = db.Column(db.Boolean, nullable=False, default=False)
-    ratings = db.relationship('User', secondary='rating')
 
 class Playlist(db.Model):
     __tablename__ = "playlist"
     playlist_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.user_id"), nullable=False)
     playlist_name = db.Column(db.String(100), nullable=False)
-    songs = db.relationship('Song', secondary='playlist_song')
+    playlist_desc = db.Column(db.String(300), nullable=True)
 
 class Playlist_song(db.Model):
     __tablename__ = "playlist_song"

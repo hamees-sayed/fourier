@@ -54,3 +54,13 @@ class UpdateSongForm(FlaskForm):
     lyrics = TextAreaField('Add Lyrics', validators=[DataRequired()])
     album = RadioField('Select Album', coerce=int)
     submit = SubmitField('Update Song')
+
+class NewPlaylistForm(FlaskForm):
+    playlist_name = StringField('Playlist Name', validators=[DataRequired(), Length(min=2, max=100)])
+    playlist_desc = StringField('Playlist Description', validators=[Length(min=0, max=300)])
+    submit = SubmitField('Create Playlist')
+
+class UpdatePlaylistForm(FlaskForm):
+    playlist_name = StringField('Playlist Name', validators=[DataRequired(), Length(min=2, max=100)])
+    playlist_desc = StringField('Playlist Description', validators=[Length(min=0, max=300)])
+    submit = SubmitField('Update Playlist')
