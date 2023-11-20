@@ -1,20 +1,27 @@
-from flask import render_template, flash, redirect, url_for
+from flask import render_template, flash, redirect, url_for, request
 from flask_login import current_user, login_required
 from controllers import app, db
-from controllers.forms import NewPlaylistForm, UpdatePlaylistForm
-from models import User, Song, Playlist, Playlist_song
+from controllers.forms import NewPlaylistForm, UpdatePlaylistForm, RegisterCreator
+from models import User, Song, Playlist, Playlist_song, Creator
 
-@app.route("/register_creator")
+@app.route("/register_creator", methods=["GET", "POST"])
 @login_required
 def register_creator():
     if not current_user.is_creator:
         user = User.query.filter_by(username=current_user.username).first()
         if user:
-            user.is_creator = True
-            new_creator = Creator(user_id=user.user_id)
-            db.session.add(new_creator)
-            db.session.commit()
-            flash("You are now a creator!", "success")
+            form = RegisterCreator()
+            if form.validate_on_submit():
+                user.username = form.username.data
+                user.is_creator = True
+                new_creator = Creator(user_id=user.user_id)
+                db.session.add(new_creator)
+                db.session.commit()
+                flash("You are now a creator!", "success")
+                return redirect(url_for('creator'))
+            elif request.method == 'GET':
+                form.username.data = user.username
+            return render_template('register_creator.html', form=form, title="Register Creator")
     else:
         flash("You are already a creator!", "info")
     return redirect(url_for("creator"))

@@ -5,10 +5,6 @@ from controllers import app, db, bcrypt
 from models import User, Playlist
 
 
-@app.route('/')
-def home():
-    return render_template("home.html", title="Home")
-
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html', title='404'), 404

@@ -114,6 +114,7 @@ def update_album(album_id):
 def new_song():
     form = NewSongForm()
     creator_albums = Album.query.filter_by(creator_id=current_user.creator.creator_id).all()
+    current_creator = Creator.query.filter_by(user_id = current_user.user_id).first()
 
     form.album.choices = [(str(album.album_id), album.album_name) for album in creator_albums]
 
@@ -125,7 +126,7 @@ def new_song():
         song_file = save_song_file(form.song_file.data)
         song = Song(
             album_id=album_id,
-            creator_id=current_user.creator.creator_id,
+            creator_id=current_creator.creator_id,
             song_title=form.song_title.data,
             song_file=song_file,
             lyrics=form.lyrics.data,
@@ -140,7 +141,7 @@ def new_song():
 @app.route("/song")
 @creator_required
 def songs():
-    song = Song.query.filter_by(creator_id=current_user.creator.creator_id).all()
+    song = song = Song.query.filter_by(creator_id=current_user.creator.creator_id).all()
     return render_template("creator_songs.html", title="Album", songs = song, length=len(song))
 
 @app.route("/song/<int:song_id>/delete")
@@ -173,14 +174,9 @@ def update_song(song_id):
             if not album_id:
                 album_id = None
 
-            song_file = save_song_file(form.song_file.data)
-            duration = song_duration(song_file)
-
             song.album_id = album_id
             song.song_title = form.song_title.data
-            song.song_file = song_file
             song.lyrics = form.lyrics.data
-            song.duration = duration
 
             db.session.commit()
             flash('Song updated successfully!', 'success')

@@ -3,8 +3,8 @@
 
 <body>
     {% if not current_user.is_authenticated %}
-    <div class="container">
-        <h1>Fourier</h1>
+    <div class="container vertical-center d-flex flex-column align-items-center">
+        <img src="{{ url_for('static', filename='logo.png') }}" width="300" height="190" />
         <h3>Dive into the world of Music today.</h3>
         <div class="buttons">
             <a href="{{ url_for('register') }}" class="btn btn-light border" role="button">Register</a>
@@ -16,6 +16,9 @@
         <div class="card w-75 container">
             <div class="card-body">
                 <h4 class="card-title">{{song.song_title}}</h4>
+                {% if song.creator %}
+                <h6 class="card-title">By: {{ song.creator.user.username }}</h6>
+                {% endif %}
                 <a class="btn btn-outline-secondary mb-2" data-bs-toggle="collapse" data-bs-target="#lyrics-{{ song.song_id }}">Show/Hide Lyrics</a>
                 <div id="lyrics-{{ song.song_id }}" class="collapse">
                     <pre>{{ song.lyrics }}</pre>
@@ -23,6 +26,8 @@
                 <audio class="w-100" controls>
                     <source src="{{ url_for('static', filename='songs/'+song.song_file) }}" type="audio/mp3" />
                 </audio>
+                <a href="#" class="btn btn-primary">Add to Playlist</a>
+                <a href="#" class="btn btn-primary">Rate</a>
             </div>
         </div>
         <br>

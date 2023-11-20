@@ -84,6 +84,10 @@ pre {
   font-size: 16px;
 }
 
+.vertical-center {
+  margin-top: 10%
+}
+
 @media screen and (max-width: 600px) {
   .navbar_links {
     display: flex;

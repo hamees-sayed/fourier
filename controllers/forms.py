@@ -5,7 +5,7 @@ from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationE
 from models import User, Album
 
 class RegistrationForm(FlaskForm):
-    username = StringField('Username', validators=[DataRequired(), Length(min=2, max=20)])
+    username = StringField('Username (Also your creator name)', validators=[DataRequired(), Length(min=2, max=20)])
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired(), Length(min=8)])
     confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo("password")])
@@ -20,6 +20,15 @@ class RegistrationForm(FlaskForm):
         email = User.query.filter_by(email = email.data).first()
         if email:
             raise ValidationError("User with that email already exists. Please choose a different one.")
+
+class RegisterCreator(FlaskForm):
+    username = StringField('New User/Creator Name', validators=[DataRequired(), Length(min=2, max=20)])
+    submit = SubmitField('Register as a Creator')
+
+    def validate_username(self, username):
+        user = User.query.filter_by(username = username.data).first()
+        if user and user.is_creator:
+            raise ValidationError("Creator Name is taken. Please choose a different one.")
 
 class LoginForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])
@@ -50,7 +59,6 @@ class NewSongForm(FlaskForm):
 
 class UpdateSongForm(FlaskForm):
     song_title = StringField('Song Title', validators=[DataRequired(), Length(min=2, max=100)])
-    song_file = FileField('Upload a Song', validators=[FileRequired(), FileAllowed(['mp3'])])
     lyrics = TextAreaField('Add Lyrics', validators=[DataRequired()])
     album = RadioField('Select Album', coerce=int)
     submit = SubmitField('Update Song')
@@ -67,6 +75,8 @@ class UpdatePlaylistForm(FlaskForm):
 
 class AddSongToPlaylist(FlaskForm):
     playlist = RadioField('Select Playlist', coerce=int)
+    submit = SubmitField('Add Song to Playlist')
 
 class RateSong(FlaskForm):
     rating = RadioField('Select Rating', coerce=int)
+    submit = SubmitField('Submit Rating')
