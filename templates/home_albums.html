@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+{% block content %}
+
+{% for album in albums %}
+<a href="{{url_for('get_album', album_id=album.album_id)}}" , style="text-decoration: none; color:#212529">
+    <div class="card w-75">
+        <div class="card-body">
+            <h5 class="card-title mb-1">{{album.album_name}}</h5>
+            <p class="card-text mb-3">Genre: {{album.genre}}</p>
+        </div>
+    </div>
+</a>
+<br>
+{% endfor %}
+
+{% endblock %}

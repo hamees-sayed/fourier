@@ -20,16 +20,6 @@
                 </div>
                 <br>
                 <div class="form-group">
-                    {{ form.song_file.label() }}
-                    {{ form.song_file(class="form-control-file") }}
-                    {% if form.song_file.errors %}
-                        {% for error in form.song_file.errors %}
-                            <span class="text-danger">{{ error }}</span>
-                        {% endfor %}
-                    {% endif %}
-                </div>
-                <br>
-                <div class="form-group">
                     {{ form.lyrics.label(class="form-control-label") }}
                     {% if form.lyrics.errors %}
                         {{ form.lyrics(class="form-control form-control-lg is-invalid") }}
