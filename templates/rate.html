@@ -1,0 +1,26 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container">
+    <form method="POST" action="{{ url_for('rate_song', song_id=song.song_id) }}">
+        {{ form.hidden_tag() }}
+        <fieldset class="form-group">
+            <legend class="border-bottom mb-2">Update Album</legend>
+            <div class="form-group">
+                {{ form.rating.label(class="form-control-label") }}
+                {% if form.rating.errors %}
+                    {% for error in form.rating.errors %}
+                        <div class="invalid-feedback">
+                            <span>{{ error }}</span>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+                {{ form.rating }}
+            </div>
+        </fieldset>
+        <br>
+        <div class="form-group">
+            {{ form.submit(class="btn btn-outline-info") }}
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,8 +1,12 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired, FileAllowed
-from wtforms import StringField, PasswordField, SubmitField, RadioField, TextAreaField, BooleanField
+from wtforms import StringField, PasswordField, SubmitField, RadioField, TextAreaField, BooleanField, SelectMultipleField, widgets
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 from models import User, Album
+
+# class MultiCheckboxField(SelectMultipleField):
+#     widget = widgets.ListWidget(prefix_label=False)
+#     option_widget = widgets.CheckboxInput()
 
 class RegistrationForm(FlaskForm):
     username = StringField('Username (Also your creator name)', validators=[DataRequired(), Length(min=2, max=20)])
@@ -54,7 +58,7 @@ class NewSongForm(FlaskForm):
     song_title = StringField('Song Title', validators=[DataRequired(), Length(min=2, max=100)])
     song_file = FileField('Upload a Song', validators=[FileRequired(), FileAllowed(['mp3'])])
     lyrics = TextAreaField('Add Lyrics', validators=[DataRequired()])
-    album = RadioField('Select Album', coerce=int)
+    album = RadioField('Select Album', coerce=int, render_kw={'class':'no_bullets'})
     submit = SubmitField('Create Song')
 
 class UpdateSongForm(FlaskForm):
@@ -74,9 +78,9 @@ class UpdatePlaylistForm(FlaskForm):
     submit = SubmitField('Update Playlist')
 
 class AddSongToPlaylist(FlaskForm):
-    playlist = RadioField('Select Playlist', coerce=int)
+    playlist = RadioField('Select Playlist', coerce=int, render_kw={'class':'no_bullets'})
     submit = SubmitField('Add Song to Playlist')
 
 class RateSong(FlaskForm):
-    rating = RadioField('Select Rating', coerce=int)
+    rating = RadioField('Select Rating', choices=[(1, '1'), (2, '2'), (3, '3'), (4, '4'), (5, '5')], coerce=int)
     submit = SubmitField('Submit Rating')

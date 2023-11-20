@@ -114,7 +114,6 @@ def update_album(album_id):
 def new_song():
     form = NewSongForm()
     creator_albums = Album.query.filter_by(creator_id=current_user.creator.creator_id).all()
-    current_creator = Creator.query.filter_by(user_id = current_user.user_id).first()
 
     form.album.choices = [(str(album.album_id), album.album_name) for album in creator_albums]
 
@@ -126,7 +125,7 @@ def new_song():
         song_file = save_song_file(form.song_file.data)
         song = Song(
             album_id=album_id,
-            creator_id=current_creator.creator_id,
+            creator_id=current_user.creator.creator_id,
             song_title=form.song_title.data,
             song_file=song_file,
             lyrics=form.lyrics.data,
