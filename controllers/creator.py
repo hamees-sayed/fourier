@@ -116,6 +116,7 @@ def new_song():
     creator_albums = Album.query.filter_by(creator_id=current_user.creator.creator_id).all()
 
     form.album.choices = [(str(album.album_id), album.album_name) for album in creator_albums]
+    form.album.choices.append(('0', 'Release as Single'))
 
     if form.validate_on_submit():
         album_id = form.album.data

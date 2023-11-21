@@ -12,6 +12,14 @@
         </div>
     </div>
     {% else %}
+    <div class="container input-group rounded w-50">
+        <input type="search" class="form-control rounded border border-primary" placeholder="Search" aria-label="Search"
+            aria-describedby="search-addon" />
+        <span class="input-group-text border-0" id="search-addon">
+            <a href="#"><i class="fas fa-search"></i></a>
+        </span>
+    </div>
+    <br>
     {% for song in songs %}
         <div class="card w-75 container">
             <div class="card-body">
@@ -26,11 +34,9 @@
                 <div id="lyrics-{{ song.song_id }}" class="collapse">
                     <pre>{{ song.lyrics }}</pre>
                 </div>
-                <a href="{{ url_for('play_counter', song_id=song.song_id) }}">
-                    <audio class="w-100" controls>
-                        <source src="{{ url_for('static', filename='songs/'+song.song_file) }}" type="audio/mp3" />
-                    </audio>
-                </a>
+                <audio class="w-100" controls>
+                    <source src="{{ url_for('static', filename='songs/'+song.song_file) }}" type="audio/mp3" />
+                </audio>
                 <a href="{{ url_for('add_to_playlist', song_id=song.song_id) }}" class="btn btn-primary">Add to Playlist</a>
                 <a href="{{ url_for('rate_song', song_id=song.song_id) }}" class="btn btn-primary">Rate</a>
             </div>

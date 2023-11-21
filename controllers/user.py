@@ -4,6 +4,13 @@ from controllers import app, db
 from controllers.forms import NewPlaylistForm, UpdatePlaylistForm, RegisterCreator, AddSongToPlaylist, RateSong
 from models import User, Song, Playlist, Playlist_song, Creator, Rating
 
+
+@app.route("/account")
+@login_required
+def account():
+    playlists = Playlist.query.all()
+    return render_template("user_account.html", title="Account", playlists=playlists, length=len(playlists))
+
 @app.route("/register_creator", methods=["GET", "POST"])
 @login_required
 def register_creator():

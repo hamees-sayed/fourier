@@ -4,10 +4,6 @@ from wtforms import StringField, PasswordField, SubmitField, RadioField, TextAre
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 from models import User, Album
 
-# class MultiCheckboxField(SelectMultipleField):
-#     widget = widgets.ListWidget(prefix_label=False)
-#     option_widget = widgets.CheckboxInput()
-
 class RegistrationForm(FlaskForm):
     username = StringField('Username (Also your creator name)', validators=[DataRequired(), Length(min=2, max=20)])
     email = StringField('Email', validators=[DataRequired(), Email()])

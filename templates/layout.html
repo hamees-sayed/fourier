@@ -38,35 +38,27 @@
     </div>
     <div class="header__right">
       <div class="navbar-collapse" id="navbarNavAltMarkup">
-        <div class="navbar_links">
-          {% if current_user.is_authenticated %}
-          <a class="nav-link" aria-current="page" href="{{ url_for('account') }}">User</a>
-          {% if not current_user.is_creator %}
-          <a class="nav-link" aria-current="page" href="{{ url_for('register_creator') }}">Register as a creator</a>
-          {% elif current_user.is_creator %}
-          <a class="nav-link" aria-current="page" href="{{ url_for('creator') }}">Creator</a>
-          {% endif %}
-          <a class="nav-link" aria-current="page" href="{{ url_for('logout') }}">Logout</a>
-          {% else %}
-          <a class="nav-link" aria-current="page" href="{{ url_for('login') }}">Login</a>
-          <a class="nav-link" href="{{ url_for('register') }}">Register</a>
-          <a class="nav-link" href="/admin">Admin</a>
-          {% endif %}
-        </div>
+          <div class="navbar_links">
+              {% if current_user.is_authenticated %}
+                  {% if current_user.is_admin %}
+                      <a class="nav-link" aria-current="page" href="{{ url_for('logout') }}">Logout</a>
+                  {% else %}
+                      <a class="nav-link" aria-current="page" href="{{ url_for('account') }}">User</a>
+                      {% if not current_user.is_creator %}
+                          <a class="nav-link" aria-current="page" href="{{ url_for('register_creator') }}">Register as a creator</a>
+                      {% elif current_user.is_creator %}
+                          <a class="nav-link" aria-current="page" href="{{ url_for('creator') }}">Creator</a>
+                      {% endif %}
+                      <a class="nav-link" aria-current="page" href="{{ url_for('logout') }}">Logout</a>
+                  {% endif %}
+              {% else %}
+                  <a class="nav-link" aria-current="page" href="{{ url_for('login') }}">Login</a>
+                  <a class="nav-link" href="{{ url_for('register') }}">Register</a>
+              {% endif %}
+          </div>
       </div>
-    </div>
   </div>
-  {% if current_user.is_authenticated %}
-  <div class="container input-group rounded w-50">
-    <input type="search" class="form-control rounded border border-primary" placeholder="Search" aria-label="Search"
-        aria-describedby="search-addon" />
-    <span class="input-group-text border-0" id="search-addon">
-        <a href="#"><i class="fas fa-search"></i></a>
-    </span>
-</div>
-<br>
-<br>
-  {% endif %}
+  </div>
   <div class="container">
     {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}

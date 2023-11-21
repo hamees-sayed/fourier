@@ -1,6 +1,13 @@
 {% extends "layout.html" %}
 {% block content %}
-
+<div class="container input-group rounded w-50">
+    <input type="search" class="form-control rounded border border-primary" placeholder="Search" aria-label="Search"
+        aria-describedby="search-addon" />
+    <span class="input-group-text border-0" id="search-addon">
+        <a href="#"><i class="fas fa-search"></i></a>
+    </span>
+</div>
+<br>
 {% for album in albums %}
 <a href="{{url_for('get_album', album_id=album.album_id)}}" , style="text-decoration: none; color:#212529">
     <div class="card w-75 container">
