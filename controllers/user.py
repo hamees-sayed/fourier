@@ -110,6 +110,10 @@ def get_playlist(playlist_id):
 @login_required
 def rate_song(song_id):
     song = Song.query.get(song_id)
+    already_rated = Rating.query.filter_by(user_id=current_user.user_id, song_id=song_id).first()
+    if already_rated:
+        flash("You already rated this song.", "info")
+        return redirect(url_for("home"))
     if song:
         form = RateSong()
         if form.validate_on_submit():

@@ -20,29 +20,34 @@
         </span>
     </div>
     <br>
-    {% for song in songs %}
-        <div class="card w-75 container">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <h4 class="card-title mb-0">{{song.song_title}}&nbsp &nbsp &nbsp</h4>
-                    {{ average_rating }}&nbsp<i class="fa-solid fa-star"></i>
-                </div>
-                {% if song.creator %}
-                <h6 class="card-title mt-1">By: {{ song.creator.user.username }}</h6>
+    {% for song, average_rating in songs_with_ratings %}
+    <div class="card w-75 container">
+        <div class="card-body position-relative">
+            <div class="d-flex align-items-center">
+                <h4 class="card-title mb-0">{{ song.song_title }}&nbsp &nbsp &nbsp</h4>
+                {% if average_rating %}
+                <div class="rating position-absolute"><b>{{ average_rating|round(2) }}</b>&nbsp<i class="fa-solid fa-star"></i></div>
+                {% else %}
+                <div class="rating position-absolute"><b>0</b>&nbsp<i class="fa-solid fa-star"></i></div>
                 {% endif %}
-                <a class="btn btn-outline-secondary mb-2" data-bs-toggle="collapse" data-bs-target="#lyrics-{{ song.song_id }}">Show/Hide Lyrics</a>
-                <div id="lyrics-{{ song.song_id }}" class="collapse">
-                    <pre>{{ song.lyrics }}</pre>
-                </div>
-                <audio class="w-100" controls>
-                    <source src="{{ url_for('static', filename='songs/'+song.song_file) }}" type="audio/mp3" />
-                </audio>
-                <a href="{{ url_for('add_to_playlist', song_id=song.song_id) }}" class="btn btn-primary">Add to Playlist</a>
-                <a href="{{ url_for('rate_song', song_id=song.song_id) }}" class="btn btn-primary">Rate</a>
             </div>
+            {% if song.creator %}
+            <h6 class="card-title mt-1">By: {{ song.creator.user.username }}</h6>
+            {% endif %}
+            <a class="btn btn-outline-secondary mb-2" data-bs-toggle="collapse"
+                data-bs-target="#lyrics-{{ song.song_id }}">Show/Hide Lyrics</a>
+            <div id="lyrics-{{ song.song_id }}" class="collapse">
+                <pre>{{ song.lyrics }}</pre>
+            </div>
+            <audio class="w-100" controls>
+                <source src="{{ url_for('static', filename='songs/'+song.song_file) }}" type="audio/mp3" />
+            </audio>
+            <a href="{{ url_for('add_to_playlist', song_id=song.song_id) }}" class="btn btn-primary">Add to Playlist</a>
+            <a href="{{ url_for('rate_song', song_id=song.song_id) }}" class="btn btn-primary">Rate</a>
         </div>
-        <br>
-        {% endfor %}
+    </div>
+    <br>
+    {% endfor %}
     {% endif %}
 </body>
 {% endblock %}

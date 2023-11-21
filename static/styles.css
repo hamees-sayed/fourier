@@ -88,6 +88,10 @@ pre {
   margin-top: 10%
 }
 
+.rating {
+  right: 2.6%;
+}
+
 @media screen and (max-width: 600px) {
   .navbar_links {
     display: flex;

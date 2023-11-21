@@ -13,7 +13,10 @@ def home_albums():
 
 @app.route('/')
 def home():
-    songs = Song.query.order_by(Song.created_at.desc()).all()
-    # Have to implement average rating
+    songs_with_ratings = db.session.query(Song, db.func.avg(Rating.rating).label('average_rating')) \
+        .outerjoin(Rating, Song.song_id == Rating.song_id) \
+        .group_by(Song.song_id) \
+        .order_by(Song.created_at.desc()) \
+        .all()
 
-    return render_template("home.html", title="Home", songs=songs)
+    return render_template("home.html", title="Home", songs_with_ratings=songs_with_ratings)
