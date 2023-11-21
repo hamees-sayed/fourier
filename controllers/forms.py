@@ -53,7 +53,7 @@ class UpdateAlbumForm(FlaskForm):
 class NewSongForm(FlaskForm):
     song_title = StringField('Song Title', validators=[DataRequired(), Length(min=2, max=100)])
     song_file = FileField('Upload a Song', validators=[FileRequired(), FileAllowed(['mp3'])])
-    lyrics = TextAreaField('Add Lyrics', validators=[DataRequired()])
+    lyrics = TextAreaField('Add Lyrics', validators=[])
     album = RadioField('Select Album', coerce=int, render_kw={'class':'no_bullets'})
     submit = SubmitField('Create Song')
 

@@ -6,7 +6,7 @@ from flask import render_template, flash, redirect, url_for, request
 from flask_login import current_user
 from controllers.forms import NewAlbumForm, UpdateAlbumForm, NewSongForm, UpdateSongForm
 from controllers import app, db
-from models import User, Creator, Album, Song
+from models import User, Creator, Album, Song, Rating
 
 
 def creator_required(func):
@@ -15,7 +15,7 @@ def creator_required(func):
         if not current_user.is_authenticated:
             flash("You need to login first.", "info")
             return redirect(url_for("login"))
-        elif not current_user.is_creator:
+        elif not (current_user.is_creator or current_user.is_admin):
             flash("Register as a creator first.", "info")
             return redirect(url_for("account"))
         return func(*args, **kwargs)
@@ -121,7 +121,7 @@ def new_song():
     if form.validate_on_submit():
         album_id = form.album.data
         if not album_id or album_id == 0:
-            album_id = None
+            album_id = 0
 
         song_file = save_song_file(form.song_file.data)
         song = Song(
@@ -141,19 +141,25 @@ def new_song():
 @app.route("/song")
 @creator_required
 def songs():
-    song = song = Song.query.filter_by(creator_id=current_user.creator.creator_id).all()
+    song = Song.query.filter_by(creator_id=current_user.creator.creator_id).all()
     return render_template("creator_songs.html", title="Album", songs = song, length=len(song))
 
 @app.route("/song/<int:song_id>/delete")
 @creator_required
 def delete_song(song_id):
     song = Song.query.get(song_id)
+    rating = Rating.query.filter_by(song_id=song_id).all()
     if song:
         delete_song_file(song.song_file)
         db.session.delete(song)
+        for rate in rating:
+            db.session.delete(rate)
         db.session.commit()
         flash("Song deleted successfully!", "success")
-        return redirect(url_for("songs"))
+        if current_user.is_admin:
+            return redirect(url_for("home"))
+        else:
+            return redirect(url_for("songs"))
     else:
         flash("Song not found", "danger")
         return redirect(url_for("songs"))
@@ -166,13 +172,15 @@ def update_song(song_id):
     if song:
         creator_albums = Album.query.filter_by(creator_id=current_user.creator.creator_id).all()
         form = UpdateSongForm(obj=song)
+        form.album.data = song.album_id
 
         form.album.choices = [(str(album.album_id), album.album_name) for album in creator_albums]
+        form.album.choices.append(('0', 'Release as Single'))
 
         if form.validate_on_submit():
             album_id = form.album.data
-            if not album_id:
-                album_id = None
+            if not album_id or album_id == 0:
+                album_id = 0
 
             song.album_id = album_id
             song.song_title = form.song_title.data

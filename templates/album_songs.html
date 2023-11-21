@@ -12,7 +12,11 @@
         {% for song in songs %}
         <div class="card w-75 container">
             <div class="card-body">
+                {% if song.is_flagged %}
+                <h4 class="card-title">{{song.song_title}} &nbsp <span style="color:red"><b>FLAGGED</b></span></h4>
+                {% else %}
                 <h4 class="card-title">{{song.song_title}}</h4>
+                {% endif %}
                 <a class="btn btn-outline-secondary mb-2" data-bs-toggle="collapse" data-bs-target="#lyrics-{{ song.song_id }}">Show/Hide Lyrics</a>
                 <div id="lyrics-{{ song.song_id }}" class="collapse">
                     <pre>{{ song.lyrics }}</pre>

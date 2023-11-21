@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container input-group rounded w-50">
+    <input type="search" class="form-control rounded border border-primary" placeholder="Search" aria-label="Search"
+        aria-describedby="search-addon" />
+    <span class="input-group-text border-0" id="search-addon">
+        <a href="#"><i class="fas fa-search"></i></a>
+    </span>
+</div>
+<br>
+{% for creator in creators %}
+    <div class="card w-75 container">
+        <div class="card-body d-flex align-items-center justify-content-between">
+            <div class="d-flex flex-column">
+                <h5 class="card-title mb-1">{{creator.user.username}}</h5>
+                <p class="card-text mb-0">{{creator.user.email}}</p>
+            </div>
+            <div>
+                {% if creator.is_blacklisted %}
+                <a href="{{ url_for('whitelist_creator', creator_id=creator.creator_id) }}" class="btn btn-primary">Whitelist</a>
+                {% else %}
+                <a href="{{ url_for('blacklist_creator', creator_id=creator.creator_id) }}" class="btn btn-primary">Blacklist</a>
+                {% endif %}
+                <a href="{{ url_for('delete_creator', creator_id=creator.creator_id) }}" class="btn btn-primary">Remove</a>
+            </div>
+        </div>
+    </div>
+<br>
+{% endfor %}
+
+{% endblock %}

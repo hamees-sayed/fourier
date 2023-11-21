@@ -2,7 +2,11 @@
 {% block content %}
     <body>
         <div class="container">
+            {% if current_user.creator.is_blacklisted %}
+            <h1>Creator: {{ current_user.username }} &nbsp <span style="color: red;"><b>BLACKLISTED</b></span></h1>
+            {% else %}
             <h1>Creator: {{ current_user.username }}</h1>
+            {% endif %}
             <div class="buttons">
                 <a href="{{ url_for('albums') }}" class="btn btn-light border" role="button">View your Albums</a>
                 <a href="{{ url_for('songs') }}" class="btn btn-light border" role="button">View your Songs</a>

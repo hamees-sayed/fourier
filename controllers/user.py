@@ -1,18 +1,29 @@
 from flask import render_template, flash, redirect, url_for, request
-from flask_login import current_user, login_required
+from functools import wraps
+from flask_login import current_user
 from controllers import app, db
 from controllers.forms import NewPlaylistForm, UpdatePlaylistForm, RegisterCreator, AddSongToPlaylist, RateSong
 from models import User, Song, Playlist, Playlist_song, Creator, Rating
 
+def user_required(func):
+    @wraps(func)
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_authenticated:
+            flash("You need to login first.", "info")
+            return redirect(url_for("login"))
+        elif current_user.is_admin:
+            return {"message":"unauthorized"}, 401
+        return func(*args, **kwargs)
+    return decorated_function
 
 @app.route("/account")
-@login_required
+@user_required
 def account():
     playlists = Playlist.query.all()
     return render_template("user_account.html", title="Account", playlists=playlists, length=len(playlists))
 
 @app.route("/register_creator", methods=["GET", "POST"])
-@login_required
+@user_required
 def register_creator():
     if not current_user.is_creator:
         user = User.query.filter_by(username=current_user.username).first()
@@ -34,7 +45,7 @@ def register_creator():
     return redirect(url_for("creator"))
 
 @app.route("/playlist/new", methods=["GET", "POST"])
-@login_required
+@user_required
 def new_playlist():
     form = NewPlaylistForm()
     if form.validate_on_submit():
@@ -45,7 +56,7 @@ def new_playlist():
     return render_template("new_playlist.html", form=form, title="New Playlist")
 
 @app.route("/playlist/<int:playlist_id>/delete")
-@login_required
+@user_required
 def delete_playlist(playlist_id):
     playlist = Playlist.query.get(playlist_id)
     if playlist:
@@ -58,7 +69,7 @@ def delete_playlist(playlist_id):
         return redirect(url_for("account"))
 
 @app.route("/playlist/<int:playlist_id>/update", methods=["GET", "POST"])
-@login_required
+@user_required
 def update_playlist(playlist_id):
     playlist = Playlist.query.get(playlist_id)
     if playlist:
@@ -76,7 +87,7 @@ def update_playlist(playlist_id):
         return redirect(url_for("account"))
 
 @app.route("/playlist/add/<int:song_id>", methods=['GET', 'POST'])
-@login_required
+@user_required
 def add_to_playlist(song_id):
     user_playlists = Playlist.query.filter_by(user_id=current_user.user_id).all()
     song = Song.query.get(song_id)
@@ -97,7 +108,7 @@ def add_to_playlist(song_id):
     return render_template("add_to_playlist.html", form=form, song=song, title="Add Song to Playlist")
 
 @app.route("/playlist/<int:playlist_id>")
-@login_required
+@user_required
 def get_playlist(playlist_id):
     songs_in_playlist = Song.query.join(Playlist_song).filter(Playlist_song.playlist_id==playlist_id).all()
     playlist = Playlist.query.get(playlist_id)
@@ -107,7 +118,7 @@ def get_playlist(playlist_id):
     return render_template("playlist_songs.html", length=len(songs_in_playlist), songs=songs_in_playlist, playlist=playlist)
 
 @app.route("/rate/<int:song_id>", methods=["GET", "POST"])
-@login_required
+@user_required
 def rate_song(song_id):
     song = Song.query.get(song_id)
     already_rated = Rating.query.filter_by(user_id=current_user.user_id, song_id=song_id).first()

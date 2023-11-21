@@ -28,6 +28,14 @@
     </div>
     <div class="header__center">
       {% if current_user.is_authenticated %}
+      {% if current_user.is_admin %}
+      <div class="header__option">
+        <a class="btn btn-primary active" href="{{ url_for('admin_songs') }}" role="button">Songs 🎶</a>
+      </div>
+      <div class="header__option">
+        <a class="btn btn-primary active" href="{{ url_for('admin_albums') }}" role="button">Albums 💿</a>
+      </div>
+      {% else %}
       <div class="header__option">
         <a class="btn btn-primary active" href="{{ url_for('home') }}" role="button">Songs 🎶</a>
       </div>
@@ -35,12 +43,22 @@
         <a class="btn btn-primary active" href="{{ url_for('home_albums') }}" role="button">Albums 💿</a>
       </div>
       {% endif %}
+        {% if current_user.is_admin %}
+        <div class="header__option">
+          <a class="btn btn-primary active" href="{{ url_for('users') }}" role="button">Users 🤖</a>
+        </div>
+        <div class="header__option">
+          <a class="btn btn-primary active" href="{{ url_for('creators') }}" role="button">Creators 🧑‍🎨</a>
+        </div>
+        {% endif %}
+      {% endif %}
     </div>
     <div class="header__right">
       <div class="navbar-collapse" id="navbarNavAltMarkup">
           <div class="navbar_links">
               {% if current_user.is_authenticated %}
                   {% if current_user.is_admin %}
+                      <a class="nav-link" aria-current="page" href="{{ url_for('admin') }}">Admin</a>
                       <a class="nav-link" aria-current="page" href="{{ url_for('logout') }}">Logout</a>
                   {% else %}
                       <a class="nav-link" aria-current="page" href="{{ url_for('account') }}">User</a>

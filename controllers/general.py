@@ -8,7 +8,7 @@ from models import Album, Song, User, Creator, Rating
 @app.route('/albums')
 @login_required
 def home_albums():
-    albums = Album.query.order_by(Album.created_at.desc()).all()
+    albums = db.session.query(Album, Creator).join(Creator, Album.creator_id == Creator.creator_id).all()
     return render_template("home_albums.html", title="Albums", albums=albums)
 
 @app.route('/')

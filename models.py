@@ -42,6 +42,7 @@ class Album(db.Model):
     album_name = db.Column(db.String(20), nullable=False)
     genre = db.Column(db.String(20), nullable=False)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    is_flagged = db.Column(db.Boolean, nullable=True, default=False)
     songs = db.relationship('Song', backref='album')
 
 class Song(db.Model):
