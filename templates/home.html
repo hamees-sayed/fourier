@@ -4,7 +4,7 @@
 <body>
     {% if not current_user.is_authenticated %}
     <div class="container vertical-center d-flex flex-column align-items-center">
-        <img src="{{ url_for('static', filename='logo.png') }}" width="300" height="190" />
+        <img src="{{ url_for('static', filename='images/logo.png') }}" width="300" height="190" />
         <h3>Dive into the world of Music today.</h3>
         <div class="buttons">
             <a href="{{ url_for('register') }}" class="btn btn-light border" role="button">Register</a>

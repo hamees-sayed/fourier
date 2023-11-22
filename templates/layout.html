@@ -22,7 +22,7 @@
 <body>
   <div class="header">
     <div class="header__left">
-      <a href="{{ url_for('home') }}"><img src="{{ url_for('static', filename='logo.png') }}" width="110"
+      <a href="{{ url_for('home') }}"><img src="{{ url_for('static', filename='images/logo.png') }}" width="110"
           height="70" /></a>
 
     </div>
@@ -43,39 +43,39 @@
         <a class="btn btn-primary active" href="{{ url_for('home_albums') }}" role="button">Albums 💿</a>
       </div>
       {% endif %}
-        {% if current_user.is_admin %}
-        <div class="header__option">
-          <a class="btn btn-primary active" href="{{ url_for('users') }}" role="button">Users 🤖</a>
-        </div>
-        <div class="header__option">
-          <a class="btn btn-primary active" href="{{ url_for('creators') }}" role="button">Creators 🧑‍🎨</a>
-        </div>
-        {% endif %}
+      {% if current_user.is_admin %}
+      <div class="header__option">
+        <a class="btn btn-primary active" href="{{ url_for('users') }}" role="button">Users 🤖</a>
+      </div>
+      <div class="header__option">
+        <a class="btn btn-primary active" href="{{ url_for('creators') }}" role="button">Creators 🧑‍🎨</a>
+      </div>
+      {% endif %}
       {% endif %}
     </div>
     <div class="header__right">
       <div class="navbar-collapse" id="navbarNavAltMarkup">
-          <div class="navbar_links">
-              {% if current_user.is_authenticated %}
-                  {% if current_user.is_admin %}
-                      <a class="nav-link" aria-current="page" href="{{ url_for('admin') }}">Admin</a>
-                      <a class="nav-link" aria-current="page" href="{{ url_for('logout') }}">Logout</a>
-                  {% else %}
-                      <a class="nav-link" aria-current="page" href="{{ url_for('account') }}">User</a>
-                      {% if not current_user.is_creator %}
-                          <a class="nav-link" aria-current="page" href="{{ url_for('register_creator') }}">Register as a creator</a>
-                      {% elif current_user.is_creator %}
-                          <a class="nav-link" aria-current="page" href="{{ url_for('creator') }}">Creator</a>
-                      {% endif %}
-                      <a class="nav-link" aria-current="page" href="{{ url_for('logout') }}">Logout</a>
-                  {% endif %}
-              {% else %}
-                  <a class="nav-link" aria-current="page" href="{{ url_for('login') }}">Login</a>
-                  <a class="nav-link" href="{{ url_for('register') }}">Register</a>
-              {% endif %}
-          </div>
+        <div class="navbar_links">
+          {% if current_user.is_authenticated %}
+          {% if current_user.is_admin %}
+          <a class="nav-link" aria-current="page" href="{{ url_for('admin') }}">Admin</a>
+          <a class="nav-link" aria-current="page" href="{{ url_for('logout') }}">Logout</a>
+          {% else %}
+          <a class="nav-link" aria-current="page" href="{{ url_for('account') }}">User</a>
+          {% if not current_user.is_creator %}
+          <a class="nav-link" aria-current="page" href="{{ url_for('register_creator') }}">Register as a creator</a>
+          {% elif current_user.is_creator %}
+          <a class="nav-link" aria-current="page" href="{{ url_for('creator') }}">Creator</a>
+          {% endif %}
+          <a class="nav-link" aria-current="page" href="{{ url_for('logout') }}">Logout</a>
+          {% endif %}
+          {% else %}
+          <a class="nav-link" aria-current="page" href="{{ url_for('login') }}">Login</a>
+          <a class="nav-link" href="{{ url_for('register') }}">Register</a>
+          {% endif %}
+        </div>
       </div>
-  </div>
+    </div>
   </div>
   <div class="container">
     {% with messages = get_flashed_messages(with_categories=true) %}

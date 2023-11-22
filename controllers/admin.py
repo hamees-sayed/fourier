@@ -1,5 +1,10 @@
-from flask import render_template, flash, redirect, url_for
+import base64
+from io import BytesIO
 from functools import wraps
+from datetime import datetime, timedelta
+from matplotlib.figure import Figure
+import matplotlib.pyplot as plt
+from flask import render_template, flash, redirect, url_for
 from flask_login import current_user, login_required
 from controllers import app, db
 from models import User, Creator, Song, Album, Rating
@@ -15,10 +20,65 @@ def admin_required(func):
         return func(*args, **kwargs)
     return decorated_function
 
+def song_rating_histogram(song, rating):
+    """
+    Plots a Histogram of Song titles and the corresponding rating
+    """
+    fig = Figure()
+    fig, ax = plt.subplots()
+    ax.bar(song, rating)
+    ax.set_xlabel('Song Title')
+    ax.set_ylabel('Rating')
+    ax.set_title('Song Ratings')
+    buf = BytesIO()
+    fig.savefig(buf, format="png")
+
+    return base64.b64encode(buf.getbuffer()).decode("ascii")
+
+def current_users_chart(users):
+    """
+    Plots a Line chart of Cumulative Users Growth Over Time
+    """
+    fig = Figure()
+
+    # Get the current date
+    current_date = datetime.utcnow().date()
+
+    # Initialize data for the cumulative line chart
+    dates = [current_date - timedelta(days=i) for i in range(6, -1, -1)]  # Past 7 days
+    user_counts = [sum(1 for user in users if user.created_at.date() <= date) for date in dates]
+
+    # Create a cumulative line chart
+    fig, ax = plt.subplots()
+    ax.plot(range(1, 8), user_counts, marker='o')  # Representing days as 1, 2, ..., 7
+    ax.set_ylabel('Cumulative Number of Users')
+    ax.set_title('Cumulative Users Growth Over the Past 7 Days')
+
+    # Save the figure to a temporary buffer
+    buf = BytesIO()
+    fig.savefig(buf, format="png")
+    buf.seek(0)
+    plt.close(fig)
+
+    return base64.b64encode(buf.read()).decode("ascii")
+
+
 @app.route("/admin")
 @admin_required
 def admin():
-    return render_template("admin.html")
+    songs_and_ratings = db.session.query(Song.song_title, Rating.rating).join(Rating).all()
+    song, rating = zip(*songs_and_ratings)
+    song_rating_hist = song_rating_histogram(song, rating)
+
+    users = User.query.filter_by(is_admin=False).all()
+    current_users_plot = current_users_chart(users)
+
+    users_only = User.query.filter_by(is_admin=False, is_creator=False).all()
+    creators = Creator.query.all()
+    songs = Song.query.all()
+    albums = Album.query.all()
+
+    return render_template("admin.html", users=len(users_only), creators=len(creators), songs=len(songs), albums=len(albums), current_users_plot=current_users_plot, song_rating_hist=song_rating_hist)
 
 @app.route("/users")
 @admin_required

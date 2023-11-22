@@ -3,9 +3,11 @@ Flask-SQLAlchemy==3.1.1
 Flask-WTF==1.2.1
 WTForms==3.1.1
 mutagen==1.47.0
-python-dotenv
-email-validator
-Flask-Bcrypt
-Flask-Login
-Flask-RESTful
-Flask-Migrate
+python-dotenv==1.0.0
+email-validator==2.1.0.post1
+Flask-Bcrypt==1.0.1
+Flask-Login==0.6.3
+Flask-RESTful==0.3.10
+Flask-Migrate==4.0.5
+click==8.1.7
+matplotlib==3.8.2

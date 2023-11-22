@@ -73,7 +73,7 @@ def new_album():
 @app.route("/album")
 @creator_required
 def albums():
-    album = Album.query.filter_by(creator_id=current_user.creator.creator_id).all()
+    album = Album.query.filter_by(creator_id=current_user.creator.creator_id).order_by(Album.created_at.desc()).all()
     return render_template("creator_albums.html", title="Album", albums = album, length=len(album))
     
 @app.route("/album/<int:album_id>/delete")
@@ -141,7 +141,7 @@ def new_song():
 @app.route("/song")
 @creator_required
 def songs():
-    song = Song.query.filter_by(creator_id=current_user.creator.creator_id).all()
+    song = Song.query.filter_by(creator_id=current_user.creator.creator_id).order_by(Song.created_at.desc()).all()
     return render_template("creator_songs.html", title="Album", songs = song, length=len(song))
 
 @app.route("/song/<int:song_id>/delete")
