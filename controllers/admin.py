@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from flask import render_template, flash, redirect, url_for
 from flask_login import current_user, login_required
 from controllers import app, db
-from models import User, Creator, Song, Album, Rating
+from models import User, Creator, Song, Album, Rating, Playlist
 
 def admin_required(func):
     @wraps(func)
@@ -112,8 +112,14 @@ def admin_albums():
 @admin_required
 def delete_user(user_id):
     user = User.query.get(user_id)
+    ratings = Rating.query.filter_by(user_id=user_id).all()
+    playlists = Playlist.query.filter_by(user_id=user_id).all()
     if user:
         db.session.delete(user)
+        for rating in ratings:
+            db.session.delete(rating)
+        for playlist in playlists:
+            db.session.delete(playlist)
         db.session.commit()
         return redirect(url_for("users"))
     else:
