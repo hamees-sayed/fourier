@@ -12,13 +12,13 @@
         </div>
     </div>
     {% elif current_user.is_authenticated and not current_user.is_admin %}
-    <div class="container input-group rounded w-50">
-        <input type="search" class="form-control rounded border border-primary" placeholder="Search" aria-label="Search"
+    <form action="{{ url_for('song_search') }}" method="get" class="container input-group rounded w-50">
+        <input type="search" name="q" class="form-control rounded border border-primary" placeholder="Search Songs" aria-label="Search"
             aria-describedby="search-addon" />
         <span class="input-group-text border-0" id="search-addon">
-            <a href="#"><i class="fas fa-search"></i></a>
+            <button type="submit" class="btn btn-link"><i class="fas fa-search"></i></button>
         </span>
-    </div>
+    </form>
     <br>
     {% for song, average_rating in songs_with_ratings %}
     {% if song.creator and not (song.is_flagged or song.creator.is_blacklisted) %}

@@ -1,7 +1,11 @@
-from functools import wraps
-import uuid
 import os
+import uuid
+import base64
+from io import BytesIO
+from functools import wraps
 from mutagen.mp3 import MP3
+from matplotlib.figure import Figure
+import matplotlib.pyplot as plt
 from flask import render_template, flash, redirect, url_for, request
 from flask_login import current_user
 from controllers.forms import NewAlbumForm, UpdateAlbumForm, NewSongForm, UpdateSongForm
@@ -52,11 +56,33 @@ def song_duration(file_name):
     duration_in_seconds = audio.info.length
     return duration_in_seconds
 
+def song_rating_histogram(song, rating):
+    """
+    Plots a Histogram of Song titles and the corresponding rating
+    """
+    fig = Figure()
+    fig, ax = plt.subplots()
+    ax.bar(song, rating)
+    ax.set_xlabel('Song Title')
+    ax.set_ylabel('Rating')
+    ax.set_title('Song Performance')
+    buf = BytesIO()
+    fig.savefig(buf, format="png")
+
+    return base64.b64encode(buf.getbuffer()).decode("ascii")
+
 @app.route("/creator")
 @creator_required
 def creator():
     user = User.query.filter_by(username=current_user.username).first()
-    return render_template("creator_account.html", title="Creator")
+    songs = Song.query.filter_by(creator_id=current_user.creator.creator_id).count()
+    albums = Album.query.filter_by(creator_id=current_user.creator.creator_id).count()
+
+    songs_and_ratings = db.session.query(Song.song_title, Rating.rating).join(Rating).filter(Song.creator_id == current_user.creator.creator_id).all()
+    song, rating = zip(*songs_and_ratings)
+    song_rating_hist = song_rating_histogram(song, rating)
+
+    return render_template("creator_account.html", songs=songs, albums=albums, song_rating_hist=song_rating_hist, title="Creator")
 
 @app.route("/album/new", methods=["GET", "POST"])
 @creator_required

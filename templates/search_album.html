@@ -1,14 +1,7 @@
 {% extends "layout.html" %}
 {% block content %}
-<form action="{{ url_for('album_search') }}" method="get" class="container input-group rounded w-50">
-    <input type="search" name="q" class="form-control rounded border border-primary" placeholder="Search Albums" aria-label="Search"
-        aria-describedby="search-addon" />
-    <span class="input-group-text border-0" id="search-addon">
-        <button type="submit" class="btn btn-link"><i class="fas fa-search"></i></button>
-    </span>
-</form>
-<br>
-{% for album, creator in albums %}
+
+{% for album, creator in search_result %}
 {% if (not album.is_flagged) or (album.is_flagged==None) and (creator.is_blacklisted==False) %}
 <a href="{{url_for('get_album', album_id=album.album_id)}}" , style="text-decoration: none; color:#212529">
     <div class="card w-75 container">
