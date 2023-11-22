@@ -1,0 +1,38 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<body>
+    <div class="container">
+        <h1 class="text-center">Songs in the Album: {{ album.album_name }}</h1>
+        <br>
+        <br>
+        {% if length == 0 %}
+        <h4>Album doesn't contain any songs. </h4>
+        {% else %}
+        {% for song in songs %}
+        {% if not song.is_flagged %}
+        <div class="card w-75 container">
+            <div class="card-body">
+                <h4 class="card-title">{{song.song_title}}</h4>
+                <a class="btn btn-outline-secondary mb-2" data-bs-toggle="collapse" data-bs-target="#lyrics-{{ song.song_id }}">Show/Hide Lyrics</a>
+                {% if song.lyrics %}
+                <div id="lyrics-{{ song.song_id }}" class="collapse">
+                    <pre>{{ song.lyrics }}</pre>
+                </div>
+                {% else %}
+                <div id="lyrics-{{ song.song_id }}" class="collapse">
+                    <pre>Lyrics not Available</pre>
+                </div>
+                {% endif %}
+                <audio class="w-100" controls>
+                    <source src="{{ url_for('static', filename='songs/'+song.song_file) }}" type="audio/mp3" />
+                </audio>
+            </div>
+        </div>
+        <br>
+        {% endif %}
+        {% endfor %}
+        {% endif %}
+    </div>
+</body>
+{% endblock %}

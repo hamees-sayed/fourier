@@ -105,7 +105,7 @@ def admin_songs():
 @app.route("/admin/albums")
 @admin_required
 def admin_albums():
-    albums = Album.query.all()
+    albums = db.session.query(Album, Creator).join(Creator, Album.creator_id == Creator.creator_id).all()
     return render_template("admin_albums.html", albums=albums)
 
 @app.route("/user/<int:user_id>/delete")

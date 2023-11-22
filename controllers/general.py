@@ -9,7 +9,15 @@ from models import Album, Song, User, Creator, Rating
 @login_required
 def home_albums():
     albums = db.session.query(Album, Creator).join(Creator, Album.creator_id == Creator.creator_id).all()
+    print(albums[2][1].__dict__)
     return render_template("home_albums.html", title="Albums", albums=albums)
+
+@app.route("/albums/<int:album_id>")
+@login_required
+def get_home_album(album_id):
+    songs = Song.query.filter_by(album_id=album_id).all()
+    album = Album.query.get(album_id)
+    return render_template("home_album_songs.html", length=len(songs), songs=songs, album=album)
 
 @app.route('/')
 def home():

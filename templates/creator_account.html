@@ -3,7 +3,7 @@
     <body>
         <div class="container">
             {% if current_user.creator.is_blacklisted %}
-            <h2>Creator: {{ current_user.username }} &nbsp <span style="color: red;"><b>BLACKLISTED</b></span></h2>
+            <h2>Creator: {{ current_user.username }} &nbsp <span style="color: red;"><b>BLACKLISTED</b> (Policy Violation)</span></h2>
             {% else %}
             <h2>Creator: {{ current_user.username }}</h2>
             {% endif %}
