@@ -19,7 +19,7 @@ def user_required(func):
 @app.route("/account")
 @user_required
 def account():
-    playlists = Playlist.query.all()
+    playlists = Playlist.query.filter_by(user_id=current_user.user_id).all()
     return render_template("user_account.html", title="Account", playlists=playlists, length=len(playlists))
 
 @app.route("/register_creator", methods=["GET", "POST"])

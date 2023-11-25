@@ -67,7 +67,10 @@ def current_users_chart(users):
 @admin_required
 def admin():
     songs_and_ratings = db.session.query(Song.song_title, Rating.rating).join(Rating).all()
-    song, rating = zip(*songs_and_ratings)
+    if len(songs_and_ratings) == 0:
+        song, rating = [], []
+    else:
+        song, rating = zip(*songs_and_ratings)
     song_rating_hist = song_rating_histogram(song, rating)
 
     users = User.query.filter_by(is_admin=False).all()
@@ -114,6 +117,10 @@ def delete_user(user_id):
     user = User.query.get(user_id)
     ratings = Rating.query.filter_by(user_id=user_id).all()
     playlists = Playlist.query.filter_by(user_id=user_id).all()
+    creator = Creator.query.filter_by(user_id=user_id).first()
+    if creator:
+        flash("User is a creator. Delete the creator first.", "info")
+        return redirect(url_for("users"))
     if user:
         db.session.delete(user)
         for rating in ratings:
