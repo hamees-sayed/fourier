@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 from flask import render_template, flash, redirect, url_for
 from flask_login import current_user, login_required
 from controllers import app, db
+from controllers.creator import delete_song, delete_album
 from models import User, Creator, Song, Album, Rating, Playlist
 
 def admin_required(func):
@@ -30,6 +31,7 @@ def song_rating_histogram(song, rating):
     ax.set_xlabel('Song Title')
     ax.set_ylabel('Rating')
     ax.set_title('Song Ratings')
+    ax.set_ylim(1, 5)
     buf = BytesIO()
     fig.savefig(buf, format="png")
 
@@ -53,6 +55,11 @@ def current_users_chart(users):
     ax.plot(range(1, 8), user_counts, marker='o')  # Representing days as 1, 2, ..., 7
     ax.set_ylabel('Cumulative Number of Users')
     ax.set_title('Cumulative Users Growth Over the Past 7 Days')
+    
+    # Set y-axis ticks to integer values starting from 0
+    max_users = max(user_counts)
+    ax.set_yticks(range(max_users + 1))
+    ax.set_yticklabels(range(max_users + 1))
 
     # Save the figure to a temporary buffer
     buf = BytesIO()
@@ -66,11 +73,16 @@ def current_users_chart(users):
 @app.route("/admin")
 @admin_required
 def admin():
-    songs_and_ratings = db.session.query(Song.song_title, Rating.rating).join(Rating).all()
+    songs_and_ratings = db.session.query(Song.song_title, db.func.avg(Rating.rating).label('average_rating')) \
+        .outerjoin(Rating, Song.song_id == Rating.song_id) \
+        .group_by(Song.song_id) \
+        .all()
     if len(songs_and_ratings) == 0:
         song, rating = [], []
     else:
         song, rating = zip(*songs_and_ratings)
+        
+    rating = [0 if r is None else r for r in rating]
     song_rating_hist = song_rating_histogram(song, rating)
 
     users = User.query.filter_by(is_admin=False).all()
