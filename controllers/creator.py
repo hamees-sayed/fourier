@@ -201,23 +201,26 @@ def update_song(song_id):
     if song:
         creator_albums = Album.query.filter_by(creator_id=current_user.creator.creator_id).all()
         form = UpdateSongForm(obj=song)
-        form.album.data = song.album_id
 
         form.album.choices = [(str(album.album_id), album.album_name) for album in creator_albums]
         form.album.choices.append(('0', 'Release as Single'))
 
         if form.validate_on_submit():
             album_id = form.album.data
-            if not album_id or album_id == 0:
+            if not form.album.data or form.album.data == 0:
                 album_id = 0
+            print(album_id)
 
             song.album_id = album_id
             song.song_title = form.song_title.data
             song.lyrics = form.lyrics.data
+            print(song.album_id)
 
             db.session.commit()
             flash('Song updated successfully!', 'success')
             return redirect(url_for("songs"))
+        
+        form.album.data = song.album_id
         return render_template("update_song.html", form=form, title="Update Song", song=song)
     else:
         flash("Song not found", "danger")
@@ -227,5 +230,6 @@ def update_song(song_id):
 @creator_required
 def get_album(album_id):
     songs = Song.query.filter_by(album_id=album_id).all()
+    print(songs, len(songs))
     album = Album.query.get(album_id)
     return render_template("album_songs.html", length=len(songs), songs=songs, album=album)

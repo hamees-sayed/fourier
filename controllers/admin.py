@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 from flask import render_template, flash, redirect, url_for
-from flask_login import current_user, login_required
+from flask_login import current_user
 from controllers import app, db
 from controllers.creator import delete_song, delete_album
 from models import User, Creator, Song, Album, Rating, Playlist

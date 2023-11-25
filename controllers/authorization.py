@@ -7,7 +7,7 @@ from models import User
 
 
 @app.cli.command('create-admin')
-@click.option('--username', prompt=True, default='admin', help='Username for the Admin.')
+@click.option('--username', prompt=True, help='Username for the Admin.')
 @click.option('--email', prompt=True, help='Email for the Admin.')
 @click.option('--password', prompt=True, hide_input=True, confirmation_prompt=True, help='Password for the Admin.')
 def create_admin(username, email, password):
