@@ -1,20 +1,10 @@
 from flask import render_template, flash, redirect, url_for, request
-from functools import wraps
 from flask_login import current_user
 from controllers import app, db
+from controllers.utils import user_required
 from controllers.forms import NewPlaylistForm, UpdatePlaylistForm, RegisterCreator, AddSongToPlaylist, RateSong
 from models import User, Song, Playlist, Playlist_song, Creator, Rating
 
-def user_required(func):
-    @wraps(func)
-    def decorated_function(*args, **kwargs):
-        if not current_user.is_authenticated:
-            flash("You need to login first.", "info")
-            return redirect(url_for("login"))
-        elif current_user.is_admin:
-            return {"message":"unauthorized"}, 401
-        return func(*args, **kwargs)
-    return decorated_function
 
 @app.route("/account")
 @user_required

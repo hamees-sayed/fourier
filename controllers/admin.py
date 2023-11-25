@@ -1,73 +1,8 @@
-import base64
-from io import BytesIO
-from functools import wraps
-from datetime import datetime, timedelta
-from matplotlib.figure import Figure
-import matplotlib.pyplot as plt
 from flask import render_template, flash, redirect, url_for
-from flask_login import current_user
 from controllers import app, db
 from controllers.creator import delete_song, delete_album
 from models import User, Creator, Song, Album, Rating, Playlist
-
-def admin_required(func):
-    @wraps(func)
-    def decorated_function(*args, **kwargs):
-        if not current_user.is_authenticated:
-            flash("You need to login as an admin first.", "info")
-            return redirect(url_for("admin_login"))
-        elif not current_user.is_admin:
-            return {"message":"unauthorized"}, 401
-        return func(*args, **kwargs)
-    return decorated_function
-
-def song_rating_histogram(song, rating):
-    """
-    Plots a Histogram of Song titles and the corresponding rating
-    """
-    fig = Figure()
-    fig, ax = plt.subplots()
-    ax.bar(song, rating)
-    ax.set_xlabel('Song Title')
-    ax.set_ylabel('Rating')
-    ax.set_title('Song Ratings')
-    ax.set_ylim(1, 5)
-    buf = BytesIO()
-    fig.savefig(buf, format="png")
-
-    return base64.b64encode(buf.getbuffer()).decode("ascii")
-
-def current_users_chart(users):
-    """
-    Plots a Line chart of Cumulative Users Growth Over Time
-    """
-    fig = Figure()
-
-    # Get the current date
-    current_date = datetime.utcnow().date()
-
-    # Initialize data for the cumulative line chart
-    dates = [current_date - timedelta(days=i) for i in range(6, -1, -1)]  # Past 7 days
-    user_counts = [sum(1 for user in users if user.created_at.date() <= date) for date in dates]
-
-    # Create a cumulative line chart
-    fig, ax = plt.subplots()
-    ax.plot(range(1, 8), user_counts, marker='o')  # Representing days as 1, 2, ..., 7
-    ax.set_ylabel('Cumulative Number of Users')
-    ax.set_title('Cumulative Users Growth Over the Past 7 Days')
-    
-    # Set y-axis ticks to integer values starting from 0
-    max_users = max(user_counts)
-    ax.set_yticks(range(max_users + 1))
-    ax.set_yticklabels(range(max_users + 1))
-
-    # Save the figure to a temporary buffer
-    buf = BytesIO()
-    fig.savefig(buf, format="png")
-    buf.seek(0)
-    plt.close(fig)
-
-    return base64.b64encode(buf.read()).decode("ascii")
+from controllers.utils import admin_required, current_users_chart, song_rating_histogram
 
 
 @app.route("/admin")

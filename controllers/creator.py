@@ -1,75 +1,10 @@
-import os
-import uuid
-import base64
-from io import BytesIO
-from functools import wraps
-from mutagen.mp3 import MP3
-from matplotlib.figure import Figure
-import matplotlib.pyplot as plt
 from flask import render_template, flash, redirect, url_for, request
 from flask_login import current_user
 from controllers.forms import NewAlbumForm, UpdateAlbumForm, NewSongForm, UpdateSongForm
 from controllers import app, db
 from models import User, Creator, Album, Song, Rating
+from controllers.utils import creator_required, save_song_file, delete_song_file, song_duration, song_rating_histogram
 
-
-def creator_required(func):
-    @wraps(func)
-    def decorated_function(*args, **kwargs):
-        if not current_user.is_authenticated:
-            flash("You need to login first.", "info")
-            return redirect(url_for("login"))
-        elif not (current_user.is_creator or current_user.is_admin):
-            flash("Register as a creator first.", "info")
-            return redirect(url_for("account"))
-        return func(*args, **kwargs)
-    return decorated_function
-
-def save_song_file(song_file):
-    random_string = str(uuid.uuid4().hex[:10])
-    base, extension = os.path.splitext(song_file.filename)
-    song_fn = f"{random_string}{extension}"
-    current_file_path = os.path.abspath(__file__)
-    root_path = os.path.abspath(os.path.join(current_file_path, '..', '..'))
-    song_path = os.path.join(root_path, 'static/songs', song_fn)
-    song_file.save(song_path)
-
-    return song_fn
-
-def delete_song_file(file_name):
-    try:
-        file_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "static", "songs", file_name)
-        os.remove(file_path)
-        return True
-    except FileNotFoundError:
-        return False
-    except Exception as e:
-        return False
-    
-def song_duration(file_name):
-    current_file_path = os.path.abspath(__file__)
-    app_root_path = os.path.abspath(os.path.join(current_file_path, '..', '..'))
-    songs_folder_path = os.path.join(app_root_path, 'static/songs')
-    song_file_path = os.path.join(songs_folder_path, file_name)
-
-    audio = MP3(song_file_path)
-    duration_in_seconds = audio.info.length
-    return duration_in_seconds
-
-def song_rating_histogram(song, rating):
-    """
-    Plots a Histogram of Song titles and the corresponding rating
-    """
-    fig = Figure()
-    fig, ax = plt.subplots()
-    ax.bar(song, rating)
-    ax.set_xlabel('Song Title')
-    ax.set_ylabel('Rating')
-    ax.set_title('Song Performance')
-    buf = BytesIO()
-    fig.savefig(buf, format="png")
-
-    return base64.b64encode(buf.getbuffer()).decode("ascii")
 
 @app.route("/creator")
 @creator_required

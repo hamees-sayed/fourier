@@ -1,9 +1,8 @@
 from flask import render_template, request
-from flask_login import current_user, login_required
+from flask_login import login_required
 from controllers import app, db
-from models import Album, Song, User, Creator, Rating
+from models import Album, Song, Creator, Rating
 
-# count = 0
 
 @app.route('/albums')
 @login_required

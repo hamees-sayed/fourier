@@ -1,6 +1,6 @@
 import click
 from flask import render_template, flash, redirect, url_for
-from flask_login import login_user, current_user, logout_user, login_required
+from flask_login import login_user, current_user, logout_user
 from controllers.forms import RegistrationForm, LoginForm
 from controllers import app, db, bcrypt
 from models import User
