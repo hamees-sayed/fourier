@@ -20,6 +20,20 @@
                 </div>
                 <br>
                 <div class="form-group">
+                    {{ form.genre.label(class="form-control-label") }}
+                    {% if form.genre.errors %}
+                        {{ form.genre(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.genre.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.genre(class="form-control form-control-lg") }}
+                    {% endif %}
+                </div>
+                <br>
+                <div class="form-group">
                     {{ form.lyrics.label(class="form-control-label") }}
                     {% if form.lyrics.errors %}
                         {{ form.lyrics(class="form-control form-control-lg is-invalid") }}

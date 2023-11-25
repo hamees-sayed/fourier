@@ -157,6 +157,7 @@ def new_song():
             album_id=album_id,
             creator_id=current_user.creator.creator_id,
             song_title=form.song_title.data,
+            genre=form.genre.data,
             song_file=song_file,
             lyrics=form.lyrics.data,
             duration=song_duration(song_file)
@@ -213,6 +214,7 @@ def update_song(song_id):
 
             song.album_id = album_id
             song.song_title = form.song_title.data
+            song.genre = form.genre.data
             song.lyrics = form.lyrics.data
             print(song.album_id)
 

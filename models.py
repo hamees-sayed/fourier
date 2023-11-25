@@ -51,11 +51,11 @@ class Song(db.Model):
     album_id = db.Column(db.Integer, db.ForeignKey("album.album_id"), nullable=True)
     creator_id = db.Column(db.Integer, db.ForeignKey("creator.creator_id"), nullable=False)
     song_title = db.Column(db.String(100), nullable=False)
+    genre = db.Column(db.String(20), nullable=True)
     song_file = db.Column(db.String(20), nullable=False)
     lyrics = db.Column(db.Text, nullable=False)
     duration = db.Column(db.Float, nullable=False)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    play_counter = db.Column(db.Integer, nullable=False, default=0)
     is_flagged = db.Column(db.Boolean, nullable=False, default=False)
 
 class Playlist(db.Model):

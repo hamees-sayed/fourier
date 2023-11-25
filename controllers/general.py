@@ -36,7 +36,7 @@ def song_search():
 
     search_result = db.session.query(Song, db.func.avg(Rating.rating).label('average_rating')) \
     .outerjoin(Rating, Song.song_id == Rating.song_id) \
-    .filter((Song.song_title.like(query)) | (Song.lyrics.like(query)) | (Creator.user.has(username=search_term))) \
+    .filter((Song.song_title.like(query)) | (Song.lyrics.like(query)) | (Creator.user.has(username=search_term)) | (Song.genre.like(query))) \
     .group_by(Song.song_id) \
     .order_by(Song.created_at.desc()) \
     .all()
