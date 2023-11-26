@@ -9,15 +9,16 @@ from controllers.utils import creator_required, save_song_file, delete_song_file
 @app.route("/creator")
 @creator_required
 def creator():
-    user = User.query.filter_by(username=current_user.username).first()
     songs = Song.query.filter_by(creator_id=current_user.creator.creator_id).count()
     albums = Album.query.filter_by(creator_id=current_user.creator.creator_id).count()
 
     songs_and_ratings = db.session.query(Song.song_title, Rating.rating).join(Rating).filter(Song.creator_id == current_user.creator.creator_id).all()
-    if songs_and_ratings:
-        song, rating = zip(*songs_and_ratings)
+    if len(songs_and_ratings) == 0:
+        song, rating = [], []
     else:
-        song, rating = 0, 0
+        song, rating = zip(*songs_and_ratings)
+        
+    rating = [0 if r is None else r for r in rating]
     song_rating_hist = song_rating_histogram(song, rating)
 
     return render_template("creator_account.html", songs=songs, albums=albums, song_rating_hist=song_rating_hist, title="Creator")
