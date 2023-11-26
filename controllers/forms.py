@@ -52,7 +52,7 @@ class UpdateAlbumForm(FlaskForm):
 
 class NewSongForm(FlaskForm):
     song_title = StringField('Song Title', validators=[DataRequired(), Length(min=2, max=100)])
-    genre = StringField('Add Genre', validators=[DataRequired(), Length(min=0, max=20)])
+    genre = StringField('Add Genre', validators=[DataRequired(), Length(min=0, max=100)])
     song_file = FileField('Upload a Song', validators=[FileRequired(), FileAllowed(['mp3'])])
     lyrics = TextAreaField('Add Lyrics', validators=[])
     album = RadioField('Select Album', coerce=int, render_kw={'class':'no_bullets'})
@@ -60,7 +60,7 @@ class NewSongForm(FlaskForm):
 
 class UpdateSongForm(FlaskForm):
     song_title = StringField('Song Title', validators=[DataRequired(), Length(min=2, max=100)])
-    genre = StringField('Add Genre', validators=[DataRequired(), Length(min=0, max=20)])
+    genre = StringField('Add Genre', validators=[DataRequired(), Length(min=0, max=100)])
     lyrics = TextAreaField('Add Lyrics', validators=[DataRequired()])
     album = RadioField('Select Album', coerce=int)
     submit = SubmitField('Update Song')

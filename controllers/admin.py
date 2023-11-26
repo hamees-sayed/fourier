@@ -84,16 +84,16 @@ def delete_user(user_id):
 @admin_required
 def delete_creator(creator_id):
     creator = Creator.query.get(creator_id)
-    user = User.query.filter_by(user_id=creator.user_id).first()
-    songs = Song.query.filter_by(creator_id=creator.creator_id).all()
-    albums = Album.query.filter_by(creator_id=creator.creator_id).all()
     if creator:
-        user.is_creator = False
-        db.session.delete(creator)
+        user = User.query.filter_by(user_id=creator.user_id).first()
+        songs = Song.query.filter_by(creator_id=creator.creator_id).all()
+        albums = Album.query.filter_by(creator_id=creator.creator_id).all()
         for song in songs:
             delete_song(song.song_id)
         for album in albums:
             delete_album(album.album_id)
+        db.session.delete(creator)
+        user.is_creator = False
         db.session.commit()
         return redirect(url_for("creators"))
     else:

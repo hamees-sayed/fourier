@@ -2,7 +2,7 @@ from flask import render_template, flash, redirect, url_for, request
 from flask_login import current_user
 from controllers.forms import NewAlbumForm, UpdateAlbumForm, NewSongForm, UpdateSongForm
 from controllers import app, db
-from models import User, Creator, Album, Song, Rating
+from models import Creator, Album, Song, Rating
 from controllers.utils import creator_required, save_song_file, delete_song_file, song_duration, song_rating_histogram
 
 
@@ -114,12 +114,12 @@ def songs():
 @creator_required
 def delete_song(song_id):
     song = Song.query.get(song_id)
-    rating = Rating.query.filter_by(song_id=song_id).all()
     if song:
-        delete_song_file(song.song_file)
-        db.session.delete(song)
+        rating = Rating.query.filter_by(song_id=song_id).all()
         for rate in rating:
             db.session.delete(rate)
+        delete_song_file(song.song_file)
+        db.session.delete(song)
         db.session.commit()
         flash("Song deleted successfully!", "success")
         if current_user.is_admin:
