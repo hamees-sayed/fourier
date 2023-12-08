@@ -49,7 +49,10 @@ def new_playlist():
 @user_required
 def delete_playlist(playlist_id):
     playlist = Playlist.query.get(playlist_id)
+    songs_in_playlist = Playlist_song.query.filter_by(playlist_id=playlist_id).all()
     if playlist:
+        for song in songs_in_playlist:
+            db.session.delete(song)
         db.session.delete(playlist)
         db.session.commit()
         flash("Playlist deleted successfully!", "success")
@@ -100,7 +103,14 @@ def add_to_playlist(song_id):
 @app.route("/playlist/<int:playlist_id>")
 @user_required
 def get_playlist(playlist_id):
-    songs_in_playlist = Song.query.join(Playlist_song).filter(Playlist_song.playlist_id==playlist_id).all()
+    songs_in_playlist = Song.query.join(Playlist_song) \
+        .join(Creator, Song.creator_id == Creator.creator_id) \
+        .filter(
+            Playlist_song.playlist_id == playlist_id,
+            Song.is_flagged == False,
+            Creator.is_blacklisted == False
+        ).all()
+    
     playlist = Playlist.query.get(playlist_id)
     if not playlist:
         flash("Playlist doesn't exist", "info")
