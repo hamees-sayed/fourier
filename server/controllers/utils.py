@@ -128,7 +128,7 @@ def current_users_chart(users):
     ax.plot(range(1, 8), user_counts, marker='o')  # Representing days as 1, 2, ..., 7
     ax.set_ylabel('Cumulative Number of Users')
     ax.set_title('Cumulative Users Growth Over the Past 7 Days')
-    
+
     # Set y-axis ticks to integer values starting from 0
     max_users = max(user_counts)
     ax.set_yticks(range(max_users + 1))

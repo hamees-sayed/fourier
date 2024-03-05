@@ -11,3 +11,4 @@ Flask-RESTful==0.3.10
 Flask-Migrate==4.0.5
 click==8.1.7
 matplotlib==3.8.2
+plotly
