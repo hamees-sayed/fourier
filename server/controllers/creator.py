@@ -1,4 +1,5 @@
 from flask import render_template, flash, redirect, url_for, request
+from flask import jsonify
 from flask_login import current_user
 from controllers.forms import NewAlbumForm, UpdateAlbumForm, NewSongForm, UpdateSongForm
 from controllers import app, db
@@ -21,7 +22,14 @@ def creator():
     rating = [0 if r is None else r for r in rating]
     song_rating_hist = song_rating_histogram(song, rating)
 
-    return render_template("creator_account.html", songs=songs, albums=albums, song_rating_hist=song_rating_hist, title="Creator")
+    # return render_template("creator_account.html", songs=songs, albums=albums, song_rating_hist=song_rating_hist, title="Creator")
+    data = {
+        "title": "Creator",
+        "num_of_songs": songs,
+        "num_of_albums": albums,
+        "song_rating_hist": song_rating_hist
+    }
+    return jsonify(data)
 
 @app.route("/album/new", methods=["GET", "POST"])
 @creator_required
@@ -38,8 +46,17 @@ def new_album():
 @app.route("/album")
 @creator_required
 def albums():
-    album = Album.query.filter_by(creator_id=current_user.creator.creator_id).order_by(Album.created_at.desc()).all()
-    return render_template("creator_albums.html", title="Album", albums = album, length=len(album))
+    albums = Album.query.filter_by(creator_id=current_user.creator.creator_id).order_by(Album.created_at.desc()).all()
+    # return render_template("creator_albums.html", title="Album", albums = albums, length=len(albums))
+    data = []
+    if len(albums) != 0:
+        for album in albums:
+            data.append({
+                "id": album.album_id,
+                "title": album.album_name,
+                "genre": album.genre,
+            })
+    return jsonify(data)
     
 @app.route("/album/<int:album_id>/delete")
 @creator_required
@@ -107,8 +124,20 @@ def new_song():
 @app.route("/song")
 @creator_required
 def songs():
-    song = Song.query.filter_by(creator_id=current_user.creator.creator_id).order_by(Song.created_at.desc()).all()
-    return render_template("creator_songs.html", title="Album", songs = song, length=len(song))
+    songs = Song.query.filter_by(creator_id=current_user.creator.creator_id).order_by(Song.created_at.desc()).all()
+    # return render_template("creator_songs.html", title="Album", songs = song, length=len(song))
+    data = []
+    if len(songs) != 0:
+        for song in songs:
+            data.append({
+                "id": song.song_id,
+                "title": song.song_title,
+                "genre": song.genre,
+                "lyrics": song.lyrics if song.lyrics else "Lyrics not Available",
+                "song_file_url": url_for('static', filename='songs/'+song.song_file),
+                "is_flagged": True if song.is_flagged else False,
+            })
+    return jsonify(data)
 
 @app.route("/song/<int:song_id>/delete")
 @creator_required
@@ -168,6 +197,18 @@ def update_song(song_id):
 @creator_required
 def get_album(album_id):
     songs = Song.query.filter_by(album_id=album_id).all()
-    print(songs, len(songs))
     album = Album.query.get(album_id)
-    return render_template("album_songs.html", length=len(songs), songs=songs, album=album)
+    # return render_template("album_songs.html", length=len(songs), songs=songs, album=album)
+    data = []
+    if len(songs) != 0:
+        for song in songs:
+            data.append({
+                "id": song.song_id,
+                "album_creator": album.album_name,
+                "title": song.song_title,
+                "genre": song.genre,
+                "lyrics": song.lyrics if song.lyrics else "Lyrics not Available",
+                "song_file_url": url_for('static', filename='songs/'+song.song_file),
+                "is_flagged": True if song.is_flagged else False,
+            })
+    return jsonify(data)

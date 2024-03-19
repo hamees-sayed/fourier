@@ -94,22 +94,6 @@ def song_rating_histogram(song, rating):
 
     return base64.b64encode(buf.getbuffer()).decode("ascii")
 
-def song_rating_histogram(song, rating):
-    """
-    Plots a Histogram of Song titles and the corresponding rating
-    """
-    fig = Figure()
-    fig, ax = plt.subplots()
-    ax.bar(song, rating)
-    ax.set_xlabel('Song Title')
-    ax.set_ylabel('Rating')
-    ax.set_title('Song Ratings')
-    ax.set_ylim(1, 5)
-    buf = BytesIO()
-    fig.savefig(buf, format="png")
-
-    return base64.b64encode(buf.getbuffer()).decode("ascii")
-
 def current_users_chart(users):
     """
     Plots a Line chart of Cumulative Users Growth Over Time

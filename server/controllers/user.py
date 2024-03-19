@@ -1,4 +1,5 @@
 from flask import render_template, flash, redirect, url_for, request
+from flask import jsonify
 from flask_login import current_user
 from controllers import app, db
 from controllers.utils import user_required
@@ -10,7 +11,17 @@ from models import User, Song, Playlist, Playlist_song, Creator, Rating
 @user_required
 def account():
     playlists = Playlist.query.filter_by(user_id=current_user.user_id).all()
-    return render_template("user_account.html", title="Account", playlists=playlists, length=len(playlists))
+    # return render_template("user_account.html", title="Account", playlists=playlists, length=len(playlists))
+    data = []
+    if playlists:
+        for playlist in playlists:
+            data.append({
+                "id": playlist.playlist_id,
+                "playlist_name": playlist.playlist_name,
+                "playlist_desc": playlist.playlist_desc,
+                "username": current_user.username,
+            })
+    return jsonify(data)
 
 @app.route("/register_creator", methods=["GET", "POST"])
 @user_required
@@ -113,9 +124,20 @@ def get_playlist(playlist_id):
     
     playlist = Playlist.query.get(playlist_id)
     if not playlist:
-        flash("Playlist doesn't exist", "info")
-        return redirect(url_for("account"))
-    return render_template("playlist_songs.html", length=len(songs_in_playlist), songs=songs_in_playlist, playlist=playlist)
+        return {"message": "playlist not found"}, 401
+    # return render_template("playlist_songs.html", length=len(songs_in_playlist), songs=songs_in_playlist, playlist=playlist)
+    data = []
+    if songs_in_playlist:
+        for song in songs_in_playlist:
+            data.append({
+                    "song_title": song.song_title,
+                    "genre": song.genre,
+                    "creator_username": song.creator.user.username if song.creator else None,
+                    "lyrics": song.lyrics if song.lyrics else "Lyrics not Available",
+                    "song_file_url": url_for('static', filename='songs/' + song.song_file),
+                    "song_id": song.song_id
+                })
+    return jsonify(data)
 
 @app.route("/rate/<int:song_id>", methods=["GET", "POST"])
 @user_required
