@@ -1,10 +1,18 @@
 # Fourier | Music Streaming App
 
+## For Server:
 Run these commands in the following order:
-1. `python3 -m venv venv`
-2. `source venv/bin/activate`
-3. `pip install -r requirements.txt`
-4. `python app.py`
+1. `$ cd server`
+2. `$ python3 -m venv venv`
+3. `$ source venv/bin/activate`
+4. `$ pip install -r requirements.txt`
+5. `$ python app.py`
+
+## For Client:
+Run these commands in the following order:
+1. `$ cd client`
+2. `$ npm install`
+3. `$ npm run dev`
 
 ## Database Schema:
 [https://dbdiagram.io/d/Fourier](https://dbdiagram.io/d/Fourier-65378240ffbf5169f05399fe)   

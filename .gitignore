@@ -3,6 +3,10 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# javascript
+.vscode
+package-lock.json
+
 # C extensions
 *.so
 
