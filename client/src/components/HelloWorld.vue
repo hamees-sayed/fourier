@@ -6,10 +6,17 @@ defineProps({
 })
 
 const count = ref(0)
+let api = ref(null)
+
+fetch("https://jsonplaceholder.typicode.com/todos/1")
+  .then(response => response.json())
+  .then(data => api.value = data)
+  
 </script>
 
 <template>
-  <h1>{{ msg }}</h1>
+  <h1>{{ api.title }}</h1>
+  
 
   <div class="card">
     <button type="button" @click="count++">count is {{ count }}</button>

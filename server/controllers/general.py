@@ -49,9 +49,24 @@ def home():
         .all()
 
     # return render_template("home.html", title="Home", songs_with_ratings=songs_with_ratings)
-    if current_user.is_admin:
-        data = []
-        for song, average_rating in songs_with_ratings:
+    # if current_user.is_admin:
+    #     data = []
+    #     for song, average_rating in songs_with_ratings:
+    #         data.append({
+    #             "song_title": song.song_title,
+    #             "genre": song.genre,
+    #             "creator_username": song.creator.user.username if song.creator else None,
+    #             "average_rating": round(average_rating, 2) if average_rating else 0,
+    #             "lyrics": song.lyrics if song.lyrics else "Lyrics not Available",
+    #             "song_file_url": url_for('static', filename='songs/' + song.song_file),
+    #             "is_flagged": song.is_flagged,
+    #             "song_id": song.song_id
+    #         })
+    #     return jsonify(data)
+    # else:
+    data = []
+    for song, average_rating in songs_with_ratings:
+        if song.creator and not (song.is_flagged or song.creator.is_blacklisted):
             data.append({
                 "song_title": song.song_title,
                 "genre": song.genre,
@@ -59,24 +74,12 @@ def home():
                 "average_rating": round(average_rating, 2) if average_rating else 0,
                 "lyrics": song.lyrics if song.lyrics else "Lyrics not Available",
                 "song_file_url": url_for('static', filename='songs/' + song.song_file),
+                "song_id": song.song_id,
                 "is_flagged": song.is_flagged,
-                "song_id": song.song_id
+                "creator_id": song.creator.creator_id,
+                "creator_is_blacklisted": song.creator.is_blacklisted
             })
-        return jsonify(data)
-    else:
-        data = []
-        for song, average_rating in songs_with_ratings:
-            if song.creator and not (song.is_flagged or song.creator.is_blacklisted):
-                data.append({
-                    "song_title": song.song_title,
-                    "genre": song.genre,
-                    "creator_username": song.creator.user.username if song.creator else None,
-                    "average_rating": round(average_rating, 2) if average_rating else 0,
-                    "lyrics": song.lyrics if song.lyrics else "Lyrics not Available",
-                    "song_file_url": url_for('static', filename='songs/' + song.song_file),
-                    "song_id": song.song_id
-                })
-        return jsonify(data)
+    return jsonify(data)
 
 
 @app.route("/search")
@@ -104,3 +107,7 @@ def album_search():
                     .filter((Album.album_name.like(query)) | (Album.genre.like(query)) | (Creator.user.has(username=search_term))).all()
     
     return render_template("search_album.html", title="Albums", search_result=search_result)
+
+@app.route("/abc")
+def vue():
+    return jsonify([{"message": "Hello World"}, {"vue": "testing"}])
