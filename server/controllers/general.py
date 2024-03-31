@@ -1,4 +1,5 @@
 from flask import render_template, request, url_for
+from flask_cors import cross_origin
 from flask import jsonify
 from flask_login import login_required, current_user
 from controllers import app, db
@@ -110,4 +111,4 @@ def album_search():
 
 @app.route("/abc")
 def vue():
-    return jsonify([{"message": "Hello World"}, {"vue": "testing"}])
+    return jsonify({"message": "Hello World"})

@@ -8,14 +8,14 @@ defineProps({
 const count = ref(0)
 let api = ref(null)
 
-fetch("https://jsonplaceholder.typicode.com/todos/1")
+fetch("https://didactic-halibut-jp4gr5597x4cvr7-5000.app.github.dev/abc")
   .then(response => response.json())
   .then(data => api.value = data)
   
 </script>
 
 <template>
-  <h1>{{ api.title }}</h1>
+  <h1>{{ api.message }}</h1>
   
 
   <div class="card">

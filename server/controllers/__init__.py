@@ -7,6 +7,7 @@ from flask_login import LoginManager
 from flask_cors import CORS
 
 app = Flask(__name__, template_folder="../templates", static_folder = "../static")
+CORS(app)
 current_dir = os.path.abspath(os.path.dirname(__file__))
 project_root = os.path.abspath(os.path.join(current_dir, '..'))
 app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(project_root, 'database.sqlite3')}"
@@ -17,7 +18,6 @@ migrate = Migrate(app, db)
 login_manager = LoginManager(app)
 login_manager.login_view = "login"
 login_manager.login_message_category = "info"
-# CORS(app)
 
 SECRET_KEY = os.urandom(32)
 app.config['SECRET_KEY'] = SECRET_KEY
