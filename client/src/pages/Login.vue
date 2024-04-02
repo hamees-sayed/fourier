@@ -81,6 +81,11 @@
           default: return "Unexpected error occurred. Please try again later.";
         }
       },
+    },
+    mounted() {
+      if (localStorage.getItem('token') && localStorage.getItem('token').length > 0) {
+        this.$router.push('/');
+      }
     }
   };
   </script>

@@ -1,7 +1,7 @@
 from flask import render_template, flash, redirect, url_for, request
 from flask import jsonify
-from flask_login import current_user
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_login import current_user
 from controllers import app, db
 from controllers.utils import user_required
 from controllers.forms import NewPlaylistForm, UpdatePlaylistForm, RegisterCreator, AddSongToPlaylist, RateSong
@@ -9,9 +9,10 @@ from models import User, Song, Playlist, Playlist_song, Creator, Rating
 
 
 @app.route("/account")
-@jwt_required
+@jwt_required()
 def account():
-    playlists = Playlist.query.filter_by(user_id=current_user.user_id).all()
+    current_user = get_jwt_identity()
+    playlists = Playlist.query.filter_by(user_id=current_user).all()
     # return render_template("user_account.html", title="Account", playlists=playlists, length=len(playlists))
     data = []
     if playlists:
@@ -20,7 +21,7 @@ def account():
                 "id": playlist.playlist_id,
                 "playlist_name": playlist.playlist_name,
                 "playlist_desc": playlist.playlist_desc,
-                "username": current_user.username,
+                #"username": current_user.username,
             })
     return jsonify(data)
 

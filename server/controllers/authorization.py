@@ -4,7 +4,7 @@ import json
 from datetime import datetime, timedelta
 from types import SimpleNamespace
 from flask import render_template, flash, redirect, url_for, request, jsonify, current_app
-from flask_jwt_extended import create_access_token, create_refresh_token, set_access_cookies, set_refresh_cookies, unset_jwt_cookies, jwt_required
+from flask_jwt_extended import create_access_token, unset_jwt_cookies, jwt_required
 from flask_login import login_user, current_user, logout_user
 from controllers.forms import RegistrationForm, LoginForm
 from controllers import app, db, bcrypt

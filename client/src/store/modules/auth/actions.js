@@ -8,7 +8,9 @@ export default {
             password: payload.password
         }
         let response = await Axios.post("https://psychic-space-giggle-xjwg96gg4pcv4vv-5000.app.github.dev/login", postData);
-        if (response.status === 200) {
+        if (response.status === 201) {
+            console.log(response.data);
+            localStorage.setItem("token", response.data.token);
             context.commit(LOGIN_ACTION, {
                 name: response.data.username,
                 email: response.data.email,
