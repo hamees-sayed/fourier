@@ -5,9 +5,11 @@ from flask_migrate import Migrate
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 from flask_cors import CORS
+from flask_jwt_extended import JWTManager
 
 app = Flask(__name__, template_folder="../templates", static_folder = "../static")
 CORS(app)
+jwt = JWTManager(app)
 current_dir = os.path.abspath(os.path.dirname(__file__))
 project_root = os.path.abspath(os.path.join(current_dir, '..'))
 app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(project_root, 'database.sqlite3')}"

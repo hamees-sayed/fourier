@@ -1,5 +1,10 @@
 import click
-from flask import render_template, flash, redirect, url_for
+import jwt
+import json
+from datetime import datetime, timedelta
+from types import SimpleNamespace
+from flask import render_template, flash, redirect, url_for, request, jsonify, current_app
+from flask_jwt_extended import create_access_token, create_refresh_token, set_access_cookies, set_refresh_cookies, unset_jwt_cookies, jwt_required
 from flask_login import login_user, current_user, logout_user
 from controllers.forms import RegistrationForm, LoginForm
 from controllers import app, db, bcrypt
@@ -55,36 +60,51 @@ def admin_login():
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
-    if current_user.is_authenticated:
-        return redirect(url_for("home"))
-    form = RegistrationForm()
-    if form.validate_on_submit():
-        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        user = User(username=form.username.data, email=form.email.data, password=hashed_password)
-        db.session.add(user)
-        db.session.commit()
-        flash(f"Account created for {form.username.data}, you can now Log in!", "success")
-        return redirect(url_for("login"))
-    return render_template("register.html", form=form, title="Register")
+    json_data = request.get_json()
+    data = SimpleNamespace(**json_data)
+    
+    existing_user = User.query.filter((User.username == data.username) | (User.email == data.email)).first()
+    if existing_user:
+        return jsonify({"error": {"code": 400, "message": "USER ALREADY EXISTS"}}), 400
+    
+    hashed_password = bcrypt.generate_password_hash(data.password).decode('utf-8')
+    user = User(username=data.username, email=data.email, password=hashed_password)
+    db.session.add(user)
+    db.session.commit()
+    access_token = create_access_token(identity=user.user_id)
+    refresh_token = create_refresh_token(identity=user.user_id)
+
+    response = jsonify()
+    set_access_cookies(response, access_token)
+    set_refresh_cookies(response, refresh_token)
+    print(response.__dict__)
+    return response, 201
+
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    if current_user.is_authenticated:
-        return redirect(url_for("home"))
-    form = LoginForm()
-    if form.validate_on_submit():
-        user = User.query.filter_by(email = form.email.data).first()
-        if user and bcrypt.check_password_hash(user.password, form.password.data):
-            login_user(user)
-            return redirect(url_for("home"))
-        else:
-            flash("Login Unsuccessful. Please check email and password", "danger")
-    return render_template("login.html", form=form, title="Login")
+    json_data = request.get_json()
+    data = SimpleNamespace(**json_data)
+    
+    user = User.query.filter_by(email=data.email).first()
+    if user and bcrypt.check_password_hash(user.password, data.password):
+        access_token = create_access_token(identity=user.user_id)
+        refresh_token = create_refresh_token(identity=user.user_id)
+
+        response = jsonify()
+        set_access_cookies(response, access_token)
+        set_refresh_cookies(response, refresh_token)
+        return response, 201
+    else:
+        return jsonify({ "error" : {'message': 'INVALID CREDENTIALS', 'authenticated': False, 'code': 401 }}), 401
+
 
 @app.route("/logout")
+@jwt_required
 def logout():
-    logout_user()
-    return redirect(url_for("home"))
+    response = jsonify()
+    unset_jwt_cookies(response)
+    return response, 200
 
 @app.errorhandler(404)
 def page_not_found(e):
