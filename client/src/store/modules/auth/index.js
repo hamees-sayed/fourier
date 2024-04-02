@@ -9,6 +9,7 @@ export default {
             name: '',
             email: '',
             id: '',
+            token: ''
         };
     },
     mutations,

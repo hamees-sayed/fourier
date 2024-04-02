@@ -1,6 +1,7 @@
 from flask import render_template, flash, redirect, url_for, request
 from flask import jsonify
 from flask_login import current_user
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from controllers import app, db
 from controllers.utils import user_required
 from controllers.forms import NewPlaylistForm, UpdatePlaylistForm, RegisterCreator, AddSongToPlaylist, RateSong
@@ -8,7 +9,7 @@ from models import User, Song, Playlist, Playlist_song, Creator, Rating
 
 
 @app.route("/account")
-@user_required
+@jwt_required
 def account():
     playlists = Playlist.query.filter_by(user_id=current_user.user_id).all()
     # return render_template("user_account.html", title="Account", playlists=playlists, length=len(playlists))

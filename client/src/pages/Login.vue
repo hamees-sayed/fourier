@@ -68,9 +68,8 @@
         }
   
         if (this.email && this.password) {
-          console.log('Form submitted with email:', this.email, 'and password:', this.password);
           this.login({ email: this.email, password: this.password })
-            .then(() => {this.$router.push('/login')})
+            .then(() => {this.$router.push('/')})
             .catch(error => {
               this.serverError = this.getErrorMessage(error.response.data.error.message);
           })

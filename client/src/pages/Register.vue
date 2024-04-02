@@ -98,7 +98,6 @@
         }
   
         if (this.username && this.email && this.password && this.password === this.confirmPassword) {
-          console.log('Form submitted with username:', this.username, 'email:', this.email, 'and password:', this.password);
           this.register({ username: this.username, email: this.email, password: this.password })
             .then(() => {this.$router.push('/login')})
             .catch(error => {

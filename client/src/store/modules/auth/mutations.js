@@ -5,9 +5,12 @@ export default {
         state.username = payload.username;
         state.email = payload.email;
         state.id = payload.id;
+        state.token = payload.token;
     },
     [LOGIN_ACTION](state, payload){
+        state.username = payload.username;
         state.email = payload.email;
         state.id = payload.id;
+        state.token = payload.token;
     }
 };

@@ -13,5 +13,5 @@ click==8.1.7
 matplotlib==3.8.2
 plotly
 Flask-Cors
-PyJWT
 flask-jwt-extended
+flask-security-too
