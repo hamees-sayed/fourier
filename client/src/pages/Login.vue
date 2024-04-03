@@ -69,7 +69,10 @@
   
         if (this.email && this.password) {
           this.login({ email: this.email, password: this.password })
-            .then(() => {this.$router.push('/')})
+            .then(() => {
+              this.$router.push('/');
+              location.reload();
+            })
             .catch(error => {
               this.serverError = this.getErrorMessage(error.response.data.error.message);
           })

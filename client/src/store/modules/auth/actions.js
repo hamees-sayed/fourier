@@ -7,12 +7,17 @@ export default {
             email: payload.email,
             password: payload.password
         }
-        let response = await Axios.post("https://psychic-space-giggle-xjwg96gg4pcv4vv-5000.app.github.dev/login", postData);
+        let response = await Axios.post("https://miniature-space-trout-gv5pxqq6457cvj4w-5000.app.github.dev//login", postData);
         if (response.status === 201) {
             console.log(response.data);
             localStorage.setItem("token", response.data.token);
+            localStorage.setItem("username", response.data.username);
+            localStorage.setItem("is_admin", response.data.is_admin);
+            localStorage.setItem("is_creator", response.data.is_creator);
             context.commit(LOGIN_ACTION, {
                 name: response.data.username,
+                is_admin: response.data.is_admin,
+                is_creator: response.data.is_creator,
                 email: response.data.email,
                 id: response.data.user_id,
                 token: response.data.token,
@@ -25,10 +30,12 @@ export default {
             email: payload.email,
             password: payload.password
         }
-        let response = await Axios.post("https://psychic-space-giggle-xjwg96gg4pcv4vv-5000.app.github.dev/register", postData);
+        let response = await Axios.post("https://miniature-space-trout-gv5pxqq6457cvj4w-5000.app.github.dev//register", postData);
         if (response.status === 200) {
             context.commit(SET_USER_INFO_MUTATION, {
                 name: response.data.username,
+                is_admin: response.data.is_admin,
+                is_creator: response.data.is_creator,
                 email: response.data.email,
                 id: response.data.user_id,
                 token: response.data.token,

@@ -12,17 +12,15 @@
         </ul>
         <span class="navbar-text">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            <li class="nav-item" v-if="loggedIn">
-              <a class="nav-link btn btn-link" @click="logout">Logout</a>
+            <li class="nav-item" v-if="isAuthenticated">
+              <a class="nav-link btn btn-link" @click.prevent="logOut">Logout</a>
             </li>
-            <div class="d-flex flex-row" v-else>
-              <li class="nav-item">
-                <RouterLink class="nav-link active" to="/login">Login</RouterLink>
-              </li>
-              <li class="nav-item">
-                <RouterLink class="nav-link" to="/register">Register</RouterLink>
-              </li>
-          </div>
+            <li class="nav-item" v-if="!isAuthenticated">
+              <RouterLink class="nav-link active" to="/login">Login</RouterLink>
+            </li>
+            <li class="nav-item" v-if="!isAuthenticated">
+              <RouterLink class="nav-link" to="/register">Register</RouterLink>
+            </li>
           </ul>
         </span>
       </div>
@@ -31,38 +29,20 @@
 </template>
 
 <script>
-import { RouterLink } from 'vue-router';
+import { mapGetters } from 'vuex';
+import { IS_AUTHENTICATED } from '../store/storeconstants';
 
 export default {
-  components: {
-    RouterLink
-  },
-  data() {
-    return {
-      loggedIn: false
-    };
-  },
-  created() {
-    this.checkLoggedIn();
+  computed: {
+    ...mapGetters('auth', {
+      isAuthenticated: IS_AUTHENTICATED,
+    })
   },
   methods: {
-    checkLoggedIn() {
-      const token = localStorage.getItem('token');
-      this.loggedIn = !!token;
-    },
-    logout(){
-      localStorage.removeItem('token');
-      this.loggedIn = false;
-      this.$router.push('/login');
-    }
-  },
-  watch: {
-    loggedIn(newValue) {
-      if (newValue) {
-        localStorage.setItem('token', localStorage.getItem('token'));
-      } else {
-        localStorage.removeItem('token');
-      }
+    logOut() {
+      localStorage.clear();
+      this.$router.push('/');
+      location.reload();
     }
   }
 };
