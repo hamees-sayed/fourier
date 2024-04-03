@@ -13,7 +13,6 @@ from models import User, Song, Playlist, Playlist_song, Creator, Rating
 def account():
     current_user = get_jwt_identity()
     playlists = Playlist.query.filter_by(user_id=current_user).all()
-    # return render_template("user_account.html", title="Account", playlists=playlists, length=len(playlists))
     data = []
     if playlists:
         for playlist in playlists:
@@ -21,7 +20,6 @@ def account():
                 "id": playlist.playlist_id,
                 "playlist_name": playlist.playlist_name,
                 "playlist_desc": playlist.playlist_desc,
-                #"username": current_user.username,
             })
     return jsonify(data)
 

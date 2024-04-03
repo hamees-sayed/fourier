@@ -48,7 +48,7 @@ export default {
     },
     mounted () {
         this.username = localStorage.getItem("username");
-        axios.get("https://psychic-space-giggle-xjwg96gg4pcv4vv-5000.app.github.dev/account", 
+        axios.get("https://miniature-space-trout-gv5pxqq6457cvj4w-5000.app.github.dev/account", 
         { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } })
         .then(response => this.data = response.data)
     }

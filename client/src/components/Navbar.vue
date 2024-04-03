@@ -7,11 +7,22 @@
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
+      <div class="d-flex" v-if="isAuthenticated">
+        <div class="header__option">
+          <a class="btn btn-primary active" href="/" role="button">Songs 🎶</a>
+        </div>
+        <div class="header__option">
+          <a class="btn btn-primary active" href="/albums" role="button">Albums 💿</a>
+        </div>
+      </div>
       <div class="collapse navbar-collapse" id="navbarText">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         </ul>
         <span class="navbar-text">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item" v-if="isAuthenticated">
+              <a class="nav-link btn btn-link" href="/account">Account</a>
+            </li>
             <li class="nav-item" v-if="isAuthenticated">
               <a class="nav-link btn btn-link" @click.prevent="logOut">Logout</a>
             </li>
@@ -33,6 +44,12 @@ import { mapGetters } from 'vuex';
 import { IS_AUTHENTICATED } from '../store/storeconstants';
 
 export default {
+  data () {
+    return {
+      is_admin: false,
+      is_creator: false,
+    };
+  },
   computed: {
     ...mapGetters('auth', {
       isAuthenticated: IS_AUTHENTICATED,

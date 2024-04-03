@@ -4,6 +4,8 @@ import Register from './pages/Register.vue';
 import Home from './pages/Home.vue';
 import Account from './pages/Account.vue';
 import PageNotFound from './pages/PageNotFound.vue';
+import Albums from './pages/Albums.vue';
+import SingleAlbum from './pages/SingleAlbum.vue';
 
 
 const routes = [
@@ -11,6 +13,8 @@ const routes = [
     { path: '/login', component: Login, meta: { auth: false } },
     { path: '/register', component: Register, meta: { auth: false } },
     { path: '/account', component: Account, meta: { auth: true } },
+    { path: '/albums', component: Albums, meta: { auth: true } },
+    { path: '/albums/:id', component: SingleAlbum, meta: { auth: true } },
     { path: '/:pathMatch(.*)', component: PageNotFound, meta: { auth: false } },
 ]
   
