@@ -8,6 +8,10 @@ import Albums from './pages/Albums.vue';
 import SingleAlbum from './pages/SingleAlbum.vue';
 import Form_RegisterCreator from './pages/Form_RegisterCreator.vue';
 import Form_NewPlaylist from './pages/Form_NewPlaylist.vue';
+import RateSong from './pages/RateSong.vue';
+import SinglePlaylist from './pages/SinglePlaylist.vue';
+import Form_UpdatePlaylist from './pages/Form_UpdatePlaylist.vue';
+import Form_AddToPlaylist from './pages/Form_AddToPlaylist.vue';
 
 
 const routes = [
@@ -19,6 +23,10 @@ const routes = [
     { path: '/albums/:id', component: SingleAlbum, meta: { auth: true } },
     { path: '/creator/register', component: Form_RegisterCreator, meta: { auth: true } },
     { path: '/playlist/new', component: Form_NewPlaylist, meta: { auth: true } },
+    { path: '/rate/:id', component: RateSong, meta: { auth: true } },
+    { path: '/playlist/:id', component: SinglePlaylist, meta: { auth: true } },
+    { path: '/playlist/update/:id', component: Form_UpdatePlaylist, meta: { auth: true } },
+    { path: '/playlist/add/:id', component: Form_AddToPlaylist, meta: { auth: true } },
     { path: '/:pathMatch(.*)', component: PageNotFound, meta: { auth: false } },
 ]
   

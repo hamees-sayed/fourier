@@ -7,3 +7,5 @@ export const IS_CREATOR = '[getters] checks if user is creator';
 export const IS_ADMIN = '[getters] checks if user is admin';
 export const REGISTER_CREATOR_ACTION = '[actions] registers creator';
 export const CREATE_PLAYLIST_ACTION = '[actions] creates new playlist';
+export const UPDATE_PLAYLIST_ACTION = '[actions] updates playlist';
+export const ADD_SONG_TO_PLAYLIST_ACTION = '[actions] adds song to playlist';

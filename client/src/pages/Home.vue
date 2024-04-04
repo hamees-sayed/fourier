@@ -31,8 +31,8 @@
           <audio class="w-100" controls>
             <source :src="'https://miniature-space-trout-gv5pxqq6457cvj4w-5000.app.github.dev'+song.song_file_url" type="audio/mp3" />
           </audio>
-          <a href="#" class="btn btn-primary mx-2">Add to Playlist</a>
-          <a href="#" class="btn btn-primary">Rate</a>
+          <router-link :to="'/playlist/add/'+song.song_id" class="btn btn-primary mx-2">Add to Playlist</router-link>
+          <a @click="handleRateClick(song.song_id)" class="btn btn-primary">Rate</a>
         </div>
       </div>
       <br>
@@ -75,7 +75,10 @@ export default {
       axios.get("https://miniature-space-trout-gv5pxqq6457cvj4w-5000.app.github.dev/search", 
         { params: { q: this.searchTerm }, headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } })
         .then(response => this.data = response.data)
-    }
+    },
+    handleRateClick(id) {
+      this.$router.push(`/rate/${id}`);
+    },
   }
 };
 

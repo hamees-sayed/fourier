@@ -107,6 +107,7 @@ def add_to_playlist(song_id):
 @app.route("/playlist/<int:playlist_id>")
 @jwt_required()
 def get_playlist(playlist_id):
+    # Fetch songs in the playlist
     songs_in_playlist = Song.query.join(Playlist_song) \
         .join(Creator, Song.creator_id == Creator.creator_id) \
         .filter(
@@ -114,23 +115,41 @@ def get_playlist(playlist_id):
             Song.is_flagged == False,
             Creator.is_blacklisted == False
         ).all()
+    
+    # Fetch playlist details
     current_user = get_jwt_identity()
     playlist = Playlist.query.filter_by(playlist_id=playlist_id, user_id=current_user).first()
     if not playlist:
         return jsonify({"error": {"code": 400, "message": "PLAYLIST NOT FOUND"}}), 400
 
-    data = []
+    # Prepare playlist data
+    playlist_data = {
+        "playlist_name": playlist.playlist_name,
+        "playlist_desc": playlist.playlist_desc
+    }
+
+    # Prepare songs data
+    songs_data = []
     if songs_in_playlist:
         for song in songs_in_playlist:
-            data.append({
-                    "song_title": song.song_title,
-                    "genre": song.genre,
-                    "creator_username": song.creator.user.username if song.creator else None,
-                    "lyrics": song.lyrics if song.lyrics else "Lyrics not Available",
-                    "song_file_url": url_for('static', filename='songs/' + song.song_file),
-                    "song_id": song.song_id
-                })
-    return jsonify(data)
+            song_data = {
+                "song_title": song.song_title,
+                "genre": song.genre,
+                "creator_username": song.creator.user.username if song.creator else None,
+                "lyrics": song.lyrics if song.lyrics else "Lyrics not Available",
+                "song_file_url": url_for('static', filename='songs/' + song.song_file),
+                "song_id": song.song_id
+            }
+            songs_data.append(song_data)
+
+    # Construct the response object
+    response_data = {
+        "playlist": playlist_data,
+        "songs": songs_data
+    }
+
+    return jsonify(response_data)
+
 
 @app.route("/rate/<int:song_id>", methods=["GET", "POST"])
 @jwt_required()

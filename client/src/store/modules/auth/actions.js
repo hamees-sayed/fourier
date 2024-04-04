@@ -1,5 +1,5 @@
 import Axios from "axios";
-import { REGISTER_ACTION, SET_USER_INFO_MUTATION, LOGIN_ACTION, REGISTER_CREATOR_ACTION, CREATE_PLAYLIST_ACTION } from "../../storeconstants";
+import { REGISTER_ACTION, SET_USER_INFO_MUTATION, LOGIN_ACTION, REGISTER_CREATOR_ACTION, CREATE_PLAYLIST_ACTION, UPDATE_PLAYLIST_ACTION, ADD_SONG_TO_PLAYLIST_ACTION } from "../../storeconstants";
 
 export default {
     async [LOGIN_ACTION](context, payload){
@@ -9,7 +9,6 @@ export default {
         }
         let response = await Axios.post("https://miniature-space-trout-gv5pxqq6457cvj4w-5000.app.github.dev//login", postData);
         if (response.status === 201) {
-            console.log(response.data);
             localStorage.setItem("token", response.data.token);
             localStorage.setItem("username", response.data.username);
             localStorage.setItem("is_admin", response.data.is_admin);
@@ -30,7 +29,7 @@ export default {
             email: payload.email,
             password: payload.password
         }
-        let response = await Axios.post("https://miniature-space-trout-gv5pxqq6457cvj4w-5000.app.github.dev//register", postData);
+        let response = await Axios.post("https://miniature-space-trout-gv5pxqq6457cvj4w-5000.app.github.dev/register", postData);
         if (response.status === 200) {
             context.commit(SET_USER_INFO_MUTATION, {
                 name: response.data.username,
@@ -66,5 +65,28 @@ export default {
         if (response.status === 201) {
             console.log(response.data)
         }
-    }
+    },
+    async [UPDATE_PLAYLIST_ACTION](_, payload){
+        let postData = {
+            playlist_name: payload.playlist_name,
+            playlist_desc: payload.playlist_desc
+        }
+        let response = await Axios.post(`https://miniature-space-trout-gv5pxqq6457cvj4w-5000.app.github.dev/playlist/${payload.playlist_id}/update`, 
+        postData,
+        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } });
+        if (response.status === 201) {
+            console.log(response.data)
+        }
+    },
+    async [ADD_SONG_TO_PLAYLIST_ACTION](_, payload){
+        let postData = {
+            playlist_id: payload.playlist_id,
+        }
+        let response = await Axios.post(`https://miniature-space-trout-gv5pxqq6457cvj4w-5000.app.github.dev/playlist/add/${payload.song_id}`, 
+        postData,
+        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } });
+        if (response.status === 201) {
+            console.log(response.data)
+        }
+    },
 };

@@ -12,13 +12,13 @@
       </div>
       <div v-else>
         <div v-for="playlist in data" :key="playlist.id">
-          <router-link to="#" style="text-decoration: none; color:#212529">
+          <router-link :to="'/playlist/'+playlist.id" style="text-decoration: none; color:#212529">
             <div class="card w-75">
               <div class="card-body">
                 <h5 class="card-title mb-1">{{ playlist.playlist_name }}</h5>
                 <p class="card-text mb-3">{{ playlist.playlist_desc }}</p>
-                <router-link to="#" class="btn btn-primary mx-2">Update</router-link>
-                <button class="btn btn-primary">Delete</button>
+                <router-link :to="'/playlist/update/'+playlist.id" class="btn btn-primary mx-2">Update</router-link>
+                <div @click.stop.prevent="deletePlaylist(playlist.id)" class="btn btn-primary">Delete</div>
               </div>
             </div>
           </router-link>
@@ -51,6 +51,15 @@ export default {
         axios.get("https://miniature-space-trout-gv5pxqq6457cvj4w-5000.app.github.dev/account", 
         { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } })
         .then(response => this.data = response.data)
+    },
+    methods: {
+      deletePlaylist(id){
+        axios.get(`https://miniature-space-trout-gv5pxqq6457cvj4w-5000.app.github.dev/playlist/${id}/delete`,
+        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } })
+        .then(() => {
+          location.reload();
+        })
+      }
     }
 }
 </script>
