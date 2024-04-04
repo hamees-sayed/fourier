@@ -1,10 +1,8 @@
-from flask import render_template, flash, redirect, url_for, request
+from flask import url_for, request
 from flask import jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from flask_login import current_user
+from types import SimpleNamespace
 from controllers import app, db
-from controllers.utils import user_required
-from controllers.forms import NewPlaylistForm, UpdatePlaylistForm, RegisterCreator, AddSongToPlaylist, RateSong
 from models import User, Song, Playlist, Playlist_song, Creator, Rating
 
 
@@ -24,95 +22,90 @@ def account():
     return jsonify(data)
 
 @app.route("/register_creator", methods=["GET", "POST"])
-@user_required
+@jwt_required()
 def register_creator():
+    user = get_jwt_identity()
+    current_user = User.query.filter_by(user_id=user).first()
     if not current_user.is_creator:
         user = User.query.filter_by(username=current_user.username).first()
         if user:
-            form = RegisterCreator()
-            if form.validate_on_submit():
-                user.username = form.username.data
-                user.is_creator = True
-                new_creator = Creator(user_id=user.user_id)
-                db.session.add(new_creator)
-                db.session.commit()
-                flash("You are now a creator!", "success")
-                return redirect(url_for('creator'))
-            elif request.method == 'GET':
-                form.username.data = user.username
-            return render_template('register_creator.html', form=form, title="Register Creator")
+            json_data = request.get_json()
+            data = SimpleNamespace(**json_data)
+            user.username = data.username
+            user.is_creator = True
+            new_creator = Creator(user_id=user.user_id)
+            db.session.add(new_creator)
+            db.session.commit()
+            return jsonify({"user_id": user.user_id, "username": user.username, "email": user.email, "is_admin": user.is_admin, "is_creator": user.is_creator}), 201
     else:
-        flash("You are already a creator!", "info")
-    return redirect(url_for("creator"))
+        return jsonify({"error": {"code": 400, "message": "CREATOR ALREADY EXISTS"}}), 400
 
 @app.route("/playlist/new", methods=["GET", "POST"])
-@user_required
+@jwt_required()
 def new_playlist():
-    form = NewPlaylistForm()
-    if form.validate_on_submit():
-        playlist = Playlist(user_id = current_user.user_id, playlist_name=form.playlist_name.data, playlist_desc=form.playlist_desc.data)
+    user = get_jwt_identity()
+    current_user = User.query.filter_by(user_id=user).first()
+    if current_user:
+        json_data = request.get_json()
+        data = SimpleNamespace(**json_data)
+        playlist = Playlist(user_id = current_user.user_id, playlist_name=data.playlist_name, playlist_desc=data.playlist_desc)
         db.session.add(playlist)
         db.session.commit()
-        return redirect(url_for("account"))
-    return render_template("new_playlist.html", form=form, title="New Playlist")
+        return jsonify({"playlist_id": playlist.playlist_id, "playlist_name": playlist.playlist_name, "playlist_desc": playlist.playlist_desc}), 201
 
 @app.route("/playlist/<int:playlist_id>/delete")
-@user_required
+@jwt_required()
 def delete_playlist(playlist_id):
-    playlist = Playlist.query.get(playlist_id)
-    songs_in_playlist = Playlist_song.query.filter_by(playlist_id=playlist_id).all()
-    if playlist:
-        for song in songs_in_playlist:
-            db.session.delete(song)
-        db.session.delete(playlist)
-        db.session.commit()
-        flash("Playlist deleted successfully!", "success")
-        return redirect(url_for("account"))
-    else:
-        flash("Playlist not found", "info")
-        return redirect(url_for("account"))
+    user = get_jwt_identity()
+    current_user = User.query.filter_by(user_id=user).first()
+    if current_user:
+        playlist = Playlist.query.get(playlist_id)
+        songs_in_playlist = Playlist_song.query.filter_by(playlist_id=playlist_id).all()
+        if playlist:
+            for song in songs_in_playlist:
+                db.session.delete(song)
+            db.session.delete(playlist)
+            db.session.commit()
+            return jsonify({"message": "Success. Playlist Deleted."}), 200
+        else:
+            return jsonify({"error": {"code": 400, "message": "PLAYLIST NOT FOUND"}}), 400
 
 @app.route("/playlist/<int:playlist_id>/update", methods=["GET", "POST"])
-@user_required
+@jwt_required()
 def update_playlist(playlist_id):
-    playlist = Playlist.query.get(playlist_id)
+    current_user = get_jwt_identity()
+    playlist = Playlist.query.filter_by(playlist_id=playlist_id, user_id=current_user).first()
     if playlist:
-        form = UpdatePlaylistForm(obj=playlist)
-        if form.validate_on_submit():
-            playlist.playlist_name = form.playlist_name.data
-            playlist.playlist_desc = form.playlist_desc.data
+        json_data = request.get_json()
+        data = SimpleNamespace(**json_data)
+        playlist.playlist_name = data.playlist_name
+        playlist.playlist_desc = data.playlist_desc
 
-            db.session.commit()
-            flash('Playlist updated successfully!', 'success')
-            return redirect(url_for("account"))
-        return render_template("update_playlist.html", form=form, title="Update Playlist", playlist=playlist)
+        db.session.commit()
+        return jsonify({"playlist_id": playlist.playlist_id, "playlist_name": playlist.playlist_name, "playlist_desc": playlist.playlist_desc}), 201
     else:
-        flash("Playlist not found", "info")
-        return redirect(url_for("account"))
+        return jsonify({"error": {"code": 400, "message": "PLAYLIST NOT FOUND"}}), 400
+    
 
 @app.route("/playlist/add/<int:song_id>", methods=['GET', 'POST'])
-@user_required
+@jwt_required()
 def add_to_playlist(song_id):
-    user_playlists = Playlist.query.filter_by(user_id=current_user.user_id).all()
+    user = get_jwt_identity()
+    current_user = User.query.filter_by(user_id=user).first()
     song = Song.query.get(song_id)
 
     if song:
-        form = AddSongToPlaylist()
-        form.playlist.choices = [(str(playlist.playlist_id), playlist.playlist_name) for playlist in user_playlists]
-        if form.validate_on_submit():
-            new_playlist_song = Playlist_song(playlist_id=form.playlist.data, song_id=song_id)
-            db.session.add(new_playlist_song)
-            db.session.commit()
-            flash("Song added to playlist successfully", "success")
-            return redirect(url_for("account"))
+        json_data = request.get_json()
+        data = SimpleNamespace(**json_data)
+        new_playlist_song = Playlist_song(playlist_id=data.playlist_id, song_id=song_id)
+        db.session.add(new_playlist_song)
+        db.session.commit()
+        return jsonify({"playlist_id": new_playlist_song.playlist_id, "song_id": new_playlist_song.song_id}), 201
     else:
-        flash("Song not found", "info")
-        return redirect(url_for("home"))
-
-    return render_template("add_to_playlist.html", form=form, song=song, title="Add Song to Playlist")
+        return jsonify({"error": {"code": 400, "message": "SONG NOT FOUND"}}), 400
 
 @app.route("/playlist/<int:playlist_id>")
-@user_required
+@jwt_required()
 def get_playlist(playlist_id):
     songs_in_playlist = Song.query.join(Playlist_song) \
         .join(Creator, Song.creator_id == Creator.creator_id) \
@@ -121,11 +114,11 @@ def get_playlist(playlist_id):
             Song.is_flagged == False,
             Creator.is_blacklisted == False
         ).all()
-    
-    playlist = Playlist.query.get(playlist_id)
+    current_user = get_jwt_identity()
+    playlist = Playlist.query.filter_by(playlist_id=playlist_id, user_id=current_user).first()
     if not playlist:
-        return {"message": "playlist not found"}, 401
-    # return render_template("playlist_songs.html", length=len(songs_in_playlist), songs=songs_in_playlist, playlist=playlist)
+        return jsonify({"error": {"code": 400, "message": "PLAYLIST NOT FOUND"}}), 400
+
     data = []
     if songs_in_playlist:
         for song in songs_in_playlist:
@@ -140,23 +133,20 @@ def get_playlist(playlist_id):
     return jsonify(data)
 
 @app.route("/rate/<int:song_id>", methods=["GET", "POST"])
-@user_required
+@jwt_required()
 def rate_song(song_id):
+    user = get_jwt_identity()
+    current_user = User.query.filter_by(user_id=user).first()
     song = Song.query.get(song_id)
     already_rated = Rating.query.filter_by(user_id=current_user.user_id, song_id=song_id).first()
     if already_rated:
-        flash("You already rated this song.", "info")
-        return redirect(url_for("home"))
+        return jsonify({"error": {"code": 400, "message": "ALREADY RATED"}}), 400
     if song:
-        form = RateSong()
-        if form.validate_on_submit():
-            new_rating = Rating(rating=form.rating.data, user_id=current_user.user_id, song_id=song_id)
-            db.session.add(new_rating)
-            db.session.commit()
-            flash("Rating given successfully.", "success")
-            return redirect(url_for("home"))
+        json_data = request.get_json()
+        data = SimpleNamespace(**json_data)
+        new_rating = Rating(rating=data.rating, user_id=current_user.user_id, song_id=song_id)
+        db.session.add(new_rating)
+        db.session.commit()
+        return jsonify({"rating": new_rating.rating, "user_id": new_rating.user_id, "song_id": new_rating.song_id}), 201
     else:
-        flash("Song not found", "info")
-        return redirect(url_for("home"))
-
-    return render_template('rate.html', form=form, song=song, title='Rate Song')
+        return jsonify({"error": {"code": 400, "message": "SONG NOT FOUND"}}), 400

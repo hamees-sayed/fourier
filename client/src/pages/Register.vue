@@ -43,7 +43,7 @@
     </div>
     <div class="container">
       <small>
-        Have an account? <a class="text-decoration-none" href="{{ url_for('login') }}">Login</a>
+        Have an account? <a class="text-decoration-none" href="/login">Login</a>
       </small>
     </div>
   </template>

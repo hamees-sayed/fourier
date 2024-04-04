@@ -1,5 +1,5 @@
 import Axios from "axios";
-import { REGISTER_ACTION, SET_USER_INFO_MUTATION, LOGIN_ACTION } from "../../storeconstants";
+import { REGISTER_ACTION, SET_USER_INFO_MUTATION, LOGIN_ACTION, REGISTER_CREATOR_ACTION, CREATE_PLAYLIST_ACTION } from "../../storeconstants";
 
 export default {
     async [LOGIN_ACTION](context, payload){
@@ -42,4 +42,29 @@ export default {
             })
         }
     },
+    async [REGISTER_CREATOR_ACTION](_, payload){
+        let postData = {
+            username: payload.username,
+        }
+        let response = await Axios.post("https://miniature-space-trout-gv5pxqq6457cvj4w-5000.app.github.dev/register_creator", 
+        postData,
+        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } });
+        if (response.status === 201) {
+            localStorage.setItem("username", response.data.username);
+            localStorage.setItem("is_creator", response.data.is_creator);
+            location.reload();
+        }
+    },
+    async [CREATE_PLAYLIST_ACTION](_, payload){
+        let postData = {
+            playlist_name: payload.playlist_name,
+            playlist_desc: payload.playlist_desc
+        }
+        let response = await Axios.post("https://miniature-space-trout-gv5pxqq6457cvj4w-5000.app.github.dev/playlist/new", 
+        postData,
+        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } });
+        if (response.status === 201) {
+            console.log(response.data)
+        }
+    }
 };

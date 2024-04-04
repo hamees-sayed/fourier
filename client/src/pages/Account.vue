@@ -3,7 +3,7 @@
       <h1>Welcome, {{ username }}</h1>
       <h3>Your Playlists</h3>
       <div class="buttons">
-        <router-link to="#" class="btn btn-light border" role="button">Create a new Playlist</router-link>
+        <router-link to="/playlist/new" class="btn btn-light border" role="button">Create a new Playlist</router-link>
       </div>
       <br>
       <br>

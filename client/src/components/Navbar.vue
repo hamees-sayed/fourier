@@ -20,6 +20,9 @@
         </ul>
         <span class="navbar-text">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item" v-if="isAuthenticated && !isCreator">
+              <a class="nav-link btn btn-link" href="/creator/register">Become Creator</a>
+            </li>
             <li class="nav-item" v-if="isAuthenticated">
               <a class="nav-link btn btn-link" href="/account">Account</a>
             </li>
@@ -41,18 +44,14 @@
 
 <script>
 import { mapGetters } from 'vuex';
-import { IS_AUTHENTICATED } from '../store/storeconstants';
+import { IS_AUTHENTICATED, IS_CREATOR, IS_ADMIN } from '../store/storeconstants';
 
 export default {
-  data () {
-    return {
-      is_admin: false,
-      is_creator: false,
-    };
-  },
   computed: {
     ...mapGetters('auth', {
       isAuthenticated: IS_AUTHENTICATED,
+      isCreator: IS_CREATOR,
+      isAdmin: IS_ADMIN,
     })
   },
   methods: {
@@ -61,7 +60,9 @@ export default {
       this.$router.push('/');
       location.reload();
     }
+  },
+  mounted(){
+    console.log(`creator: ${this.isCreator}, admin: ${this.isAdmin}, auth: ${this.isAuthenticated}`)
   }
 };
-
 </script>

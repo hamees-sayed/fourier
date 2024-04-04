@@ -1,4 +1,4 @@
-from flask import render_template, flash, redirect, url_for
+from flask import flash, redirect, url_for
 from flask import jsonify
 from controllers import app, db
 from controllers.creator import delete_song, delete_album

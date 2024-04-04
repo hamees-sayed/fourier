@@ -6,6 +6,8 @@ import Account from './pages/Account.vue';
 import PageNotFound from './pages/PageNotFound.vue';
 import Albums from './pages/Albums.vue';
 import SingleAlbum from './pages/SingleAlbum.vue';
+import Form_RegisterCreator from './pages/Form_RegisterCreator.vue';
+import Form_NewPlaylist from './pages/Form_NewPlaylist.vue';
 
 
 const routes = [
@@ -15,6 +17,8 @@ const routes = [
     { path: '/account', component: Account, meta: { auth: true } },
     { path: '/albums', component: Albums, meta: { auth: true } },
     { path: '/albums/:id', component: SingleAlbum, meta: { auth: true } },
+    { path: '/creator/register', component: Form_RegisterCreator, meta: { auth: true } },
+    { path: '/playlist/new', component: Form_NewPlaylist, meta: { auth: true } },
     { path: '/:pathMatch(.*)', component: PageNotFound, meta: { auth: false } },
 ]
   
