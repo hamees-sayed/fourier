@@ -1,5 +1,6 @@
 from flask import flash, redirect, url_for
 from flask import jsonify
+from flask_jwt_extended import jwt_required
 from controllers import app, db
 from controllers.creator import delete_song, delete_album
 from models import User, Creator, Song, Album, Rating, Playlist
@@ -7,6 +8,7 @@ from controllers.utils import admin_required, current_users_chart, song_rating_h
 
 
 @app.route("/admin")
+@jwt_required()
 @admin_required
 def admin():
     songs_and_ratings = db.session.query(Song.song_title, db.func.avg(Rating.rating).label('average_rating')) \
@@ -29,7 +31,6 @@ def admin():
     songs = Song.query.all()
     albums = Album.query.all()
 
-    # return render_template("admin.html", users=len(users_only), creators=len(creators), songs=len(songs), albums=len(albums), current_users_plot=current_users_plot, song_rating_hist=song_rating_hist)
     data = {
         "users": len(users_only),
         "creators": len(creators),
@@ -43,6 +44,7 @@ def admin():
 
 
 @app.route("/users")
+@jwt_required()
 @admin_required
 def users():
     users = User.query.filter_by(is_admin=False, is_creator=False).all()
@@ -58,10 +60,11 @@ def users():
     return jsonify(data)
 
 @app.route("/creators")
+@jwt_required()
 @admin_required
 def creators():
     creators = Creator.query.all()
-    # return render_template("admin_creators.html", creators=creators)
+
     data = []
     for creator in creators:
         data.append({
@@ -73,6 +76,7 @@ def creators():
     return jsonify(data)
 
 @app.route("/admin/songs")
+@jwt_required()
 @admin_required
 def admin_songs():
     songs_with_ratings = db.session.query(Song, db.func.avg(Rating.rating).label('average_rating')) \
@@ -80,7 +84,7 @@ def admin_songs():
         .group_by(Song.song_id) \
         .order_by(Song.created_at.desc()) \
         .all()
-    # return render_template("home.html", songs_with_ratings=songs_with_ratings)
+
     data = []
     for song, average_rating in songs_with_ratings:
         data.append({
@@ -97,10 +101,11 @@ def admin_songs():
 
 
 @app.route("/admin/albums")
+@jwt_required()
 @admin_required
 def admin_albums():
     albums = db.session.query(Album, Creator).join(Creator, Album.creator_id == Creator.creator_id).all()
-    # return render_template("admin_albums.html", albums=albums)
+
     data = []
     for album, creator in albums:
         data.append({
@@ -113,6 +118,7 @@ def admin_albums():
     return jsonify(data)
 
 @app.route("/user/<int:user_id>/delete")
+@jwt_required()
 @admin_required
 def delete_user(user_id):
     user = User.query.get(user_id)
@@ -135,6 +141,7 @@ def delete_user(user_id):
         return redirect(url_for("users"))
 
 @app.route("/creator/<int:creator_id>/delete")
+@jwt_required()
 @admin_required
 def delete_creator(creator_id):
     creator = Creator.query.get(creator_id)
@@ -155,6 +162,7 @@ def delete_creator(creator_id):
         return redirect(url_for("creators"))
 
 @app.route("/creator/<int:creator_id>/blacklist")
+@jwt_required()
 @admin_required
 def blacklist_creator(creator_id):
     creator = Creator.query.get(creator_id)
@@ -179,6 +187,7 @@ def whitelist_creator(creator_id):
         return redirect(url_for("creators"))
 
 @app.route("/flag/<int:song_id>/song")
+@jwt_required()
 @admin_required
 def song_flagging(song_id):
     song = Song.query.get(song_id)
@@ -196,6 +205,7 @@ def song_flagging(song_id):
         return redirect(url_for("admin_songs"))
 
 @app.route("/flag/<int:album_id>/album")
+@jwt_required()
 @admin_required
 def album_flagging(album_id):
     album = Album.query.get(album_id)
