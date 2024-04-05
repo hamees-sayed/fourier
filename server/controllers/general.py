@@ -1,8 +1,6 @@
-from flask import render_template, request, url_for
-from flask_cors import cross_origin
+from flask import request, url_for
 from flask import jsonify
 from flask_jwt_extended import jwt_required
-from flask_login import login_required, current_user
 from controllers import app, db
 from models import Album, Song, Creator, Rating
 

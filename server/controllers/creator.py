@@ -1,18 +1,19 @@
-from flask import render_template, flash, redirect, url_for, request
+from flask import flash, url_for, request
 from flask import jsonify
-from flask_login import current_user
-from controllers.forms import NewAlbumForm, UpdateAlbumForm, NewSongForm, UpdateSongForm
+from types import SimpleNamespace
+from flask_jwt_extended import jwt_required
 from controllers import app, db
 from models import Creator, Album, Song, Rating
-from controllers.utils import creator_required, save_song_file, delete_song_file, song_duration, song_rating_histogram
+from controllers.utils import creator_required, save_song_file, delete_song_file, song_duration, song_rating_histogram, current_user_instance
 
 
 @app.route("/creator")
+@jwt_required()
 @creator_required
 def creator():
+    current_user = current_user_instance()
     songs = Song.query.filter_by(creator_id=current_user.creator.creator_id).count()
     albums = Album.query.filter_by(creator_id=current_user.creator.creator_id).count()
-
     songs_and_ratings = db.session.query(Song.song_title, Rating.rating).join(Rating).filter(Song.creator_id == current_user.creator.creator_id).all()
     if len(songs_and_ratings) == 0:
         song, rating = [], []
@@ -21,10 +22,8 @@ def creator():
         
     rating = [0 if r is None else r for r in rating]
     song_rating_hist = song_rating_histogram(song, rating)
-
-    # return render_template("creator_account.html", songs=songs, albums=albums, song_rating_hist=song_rating_hist, title="Creator")
     data = {
-        "title": "Creator",
+        "username": current_user.username,
         "num_of_songs": songs,
         "num_of_albums": albums,
         "song_rating_hist": song_rating_hist
@@ -32,22 +31,38 @@ def creator():
     return jsonify(data)
 
 @app.route("/album/new", methods=["GET", "POST"])
+@jwt_required()
 @creator_required
 def new_album():
-    form = NewAlbumForm()
-    if form.validate_on_submit():
-        album_creator = Creator.query.filter_by(user_id=current_user.user_id).first()
-        album = Album(creator_id = album_creator.creator_id, album_name=form.album_name.data, genre=form.genre.data)
-        db.session.add(album)
-        db.session.commit()
-        return redirect(url_for("albums"))
-    return render_template("new_album.html", form=form, title="New Album")
+    json_data = request.get_json()
+    data = SimpleNamespace(**json_data)
+    current_user = current_user_instance()
+    album_creator = Creator.query.filter_by(user_id=current_user.user_id).first()
+
+    # Check if an album with the same name already exists for the current user
+    existing_album = Album.query.filter_by(creator_id=album_creator.creator_id, album_name=data.album_name).first()
+    if existing_album:
+        return jsonify({"error": {"code": 400, "message": "ALBUM ALREADY EXISTS"}}), 400
+
+    # Create a new album if it doesn't exist
+    album = Album(creator_id=album_creator.creator_id, album_name=data.album_name, genre=data.album_genre)
+    db.session.add(album)
+    db.session.commit()
+
+    return jsonify({
+        "creator_id": album.creator_id,
+        "album_id": album.album_id,
+        "album_name": album.album_name,
+        "album_genre": album.genre,
+        "is_flagged": album.is_flagged
+    }), 200
         
 @app.route("/album")
+@jwt_required()
 @creator_required
 def albums():
+    current_user = current_user_instance()
     albums = Album.query.filter_by(creator_id=current_user.creator.creator_id).order_by(Album.created_at.desc()).all()
-    # return render_template("creator_albums.html", title="Album", albums = albums, length=len(albums))
     data = []
     if len(albums) != 0:
         for album in albums:
@@ -59,73 +74,96 @@ def albums():
     return jsonify(data)
     
 @app.route("/album/<int:album_id>/delete")
+@jwt_required()
 @creator_required
 def delete_album(album_id):
-    album = Album.query.get(album_id)
+    current_user = current_user_instance()
+    album = Album.query.filter(Album.creator_id == current_user.creator.creator_id, Album.album_id == album_id).first()
     if album:
         db.session.delete(album)
         db.session.commit()
-        flash("Album deleted successfully!", "success")
-        return redirect(url_for("albums"))
+        return jsonify({"message": "Album deleted successfully!"}), 200
     else:
-        flash("Album not found", "danger")
-        return redirect(url_for("albums"))
+        return jsonify({"error": {"code": 400, "message": "ALBUM NOT FOUND"}}), 400
 
 @app.route("/album/<int:album_id>/update", methods=["GET", "POST"])
+@jwt_required()
 @creator_required
 def update_album(album_id):
-    album = Album.query.get(album_id)
+    current_user = current_user_instance()
+    json_data = request.get_json()
+    data = SimpleNamespace(**json_data)
+    album = Album.query.filter(Album.album_id==album_id, Album.creator_id==current_user.creator.creator_id).first()
     if album:
-        form = UpdateAlbumForm()
-        if form.validate_on_submit():
-            album.album_name = form.album_name.data
-            album.genre = form.genre.data
-            db.session.commit()
-            flash("Album updated successfully!", "success")
-            return redirect(url_for("albums"))
-        elif request.method == "GET":
-            form.album_name.data = album.album_name
-            form.genre.data = album.genre
-        return render_template("update_album.html", form=form, title="Update Album", album=album)
+        album.album_name = data.album_name
+        album.genre = data.album_genre
+        db.session.commit()
+        return jsonify({
+            "creator_id": album.creator_id,
+            "album_id": album.album_id,
+            "album_name": album.album_name,
+            "album_genre": album.genre,
+            "is_flagged": album.is_flagged
+        }), 200
     else:
-        flash("Album not found", "danger")
-        return redirect(url_for("albums"))
+        return jsonify({"error": {"code": 400, "message": "ALBUM NOT FOUND"}}), 400
 
 @app.route("/song/new", methods=["GET", "POST"])
+@jwt_required()
 @creator_required
 def new_song():
-    form = NewSongForm()
-    creator_albums = Album.query.filter_by(creator_id=current_user.creator.creator_id).all()
+    current_user = current_user_instance()
+    if 'song_file' not in request.files:
+        return jsonify({"error": {"code": 400, "message": "MISSING SONG FILE"}}), 400
 
-    form.album.choices = [(str(album.album_id), album.album_name) for album in creator_albums]
-    form.album.choices.append(('0', 'Release as Single'))
+    # Extract data from form
+    song_title = request.form.get('song_title')
+    genre = request.form.get('song_genre')
+    album_id = request.form.get('album_id', 0)
+    lyrics = request.form.get('lyrics', "Lyrics not available.")
+    song_file = request.files['song_file']
 
-    if form.validate_on_submit():
-        album_id = form.album.data
-        if not album_id or album_id == 0:
-            album_id = 0
+    # Validate input data
+    if not song_title or not genre or not song_file:
+        return jsonify({"error": {"code": 400, "message": "MISSING DATA"}}), 400
 
-        song_file = save_song_file(form.song_file.data)
-        song = Song(
-            album_id=album_id,
-            creator_id=current_user.creator.creator_id,
-            song_title=form.song_title.data,
-            genre=form.genre.data,
-            song_file=song_file,
-            lyrics=form.lyrics.data,
-            duration=song_duration(song_file)
-        )
-        db.session.add(song)
-        db.session.commit()
-        return redirect(url_for("songs"))
+    # Save song file
+    song_file_name = save_song_file(song_file)
 
-    return render_template("new_song.html", form=form, title="New Song", albums=creator_albums)
+    # Create new Song instance
+    song = Song(
+        album_id=album_id,
+        creator_id=current_user.creator.creator_id,
+        song_title=song_title,
+        genre=genre,
+        song_file=song_file_name,
+        lyrics=lyrics,
+        duration=song_duration(song_file_name)
+    )
+
+    # Add song to database
+    db.session.add(song)
+    db.session.commit()
+
+    # Construct response JSON
+    response_data = {
+        "id": song.song_id,
+        "title": song.song_title,
+        "genre": song.genre,
+        "lyrics": song.lyrics if song.lyrics else "Lyrics not available",
+        "song_file_url": url_for('static', filename='songs/' + song.song_file),
+        "is_flagged": song.is_flagged
+    }
+
+    return jsonify(response_data), 200
+
 
 @app.route("/song")
+@jwt_required()
 @creator_required
 def songs():
+    current_user = current_user_instance()
     songs = Song.query.filter_by(creator_id=current_user.creator.creator_id).order_by(Song.created_at.desc()).all()
-    # return render_template("creator_songs.html", title="Album", songs = song, length=len(song))
     data = []
     if len(songs) != 0:
         for song in songs:
@@ -140,9 +178,11 @@ def songs():
     return jsonify(data)
 
 @app.route("/song/<int:song_id>/delete")
+@jwt_required()
 @creator_required
 def delete_song(song_id):
-    song = Song.query.get(song_id)
+    current_user = current_user_instance()
+    song = Song.query.filter(Song.creator_id == current_user.creator.creator_id, Song.song_id == song_id).first()
     if song:
         rating = Rating.query.filter_by(song_id=song_id).all()
         for rate in rating:
@@ -150,61 +190,52 @@ def delete_song(song_id):
         delete_song_file(song.song_file)
         db.session.delete(song)
         db.session.commit()
-        flash("Song deleted successfully!", "success")
-        if current_user.is_admin:
-            return redirect(url_for("home"))
-        else:
-            return redirect(url_for("songs"))
+        return jsonify({"message": "Song deleted successfully!"}), 200
     else:
-        flash("Song not found", "danger")
-        return redirect(url_for("songs"))
+        return jsonify({"error": {"code": 400, "message": "SONG NOT FOUND"}}), 400
 
 
 @app.route("/song/<int:song_id>/update", methods=["GET", "POST"])
+@jwt_required()
 @creator_required
 def update_song(song_id):
-    song = Song.query.get(song_id)
+    current_user = current_user_instance()
+    json_data = request.get_json()
+    data = SimpleNamespace(**json_data)
+    song = Song.query.filter(Song.song_id==song_id, Song.creator_id==current_user.creator.creator_id).first()
     if song:
-        creator_albums = Album.query.filter_by(creator_id=current_user.creator.creator_id).all()
-        form = UpdateSongForm(obj=song)
-
-        form.album.choices = [(str(album.album_id), album.album_name) for album in creator_albums]
-        form.album.choices.append(('0', 'Release as Single'))
-
-        if form.validate_on_submit():
-            album_id = form.album.data
-            if not form.album.data or form.album.data == 0:
-                album_id = 0
-            print(album_id)
-
-            song.album_id = album_id
-            song.song_title = form.song_title.data
-            song.genre = form.genre.data
-            song.lyrics = form.lyrics.data
-            print(song.album_id)
-
-            db.session.commit()
-            flash('Song updated successfully!', 'success')
-            return redirect(url_for("songs"))
-        
-        form.album.data = song.album_id
-        return render_template("update_song.html", form=form, title="Update Song", song=song)
+        album_id = data.album_id
+        if not data.album_id or data.album_id == 0:
+            album_id = 0
+        song.album_id = album_id
+        song.song_title = data.song_title
+        song.genre = data.song_genre
+        song.lyrics = data.song_lyrics
+        db.session.commit()
+        flash('Song updated successfully!', 'success')
+        return jsonify({
+            "id": song.song_id,
+            "title": song.song_title,
+            "genre": song.genre,
+            "lyrics": song.lyrics if song.lyrics else "Lyrics not available",
+        })
     else:
-        flash("Song not found", "danger")
-        return redirect(url_for("songs"))
+        return jsonify({"error": {"code": 400, "message": "SONG NOT FOUND"}}), 400
 
 @app.route("/album/<int:album_id>")
+@jwt_required()
 @creator_required
 def get_album(album_id):
+    current_user = current_user_instance()
     songs = Song.query.filter_by(album_id=album_id).all()
-    album = Album.query.get(album_id)
-    # return render_template("album_songs.html", length=len(songs), songs=songs, album=album)
+    album = Album.query.filter(Album.album_id==album_id, Album.creator_id==current_user.creator.creator_id).first()
     data = []
     if len(songs) != 0:
         for song in songs:
             data.append({
                 "id": song.song_id,
-                "album_creator": album.album_name,
+                "album_name": album.album_name,
+                "album_genre": album.genre,
                 "title": song.song_title,
                 "genre": song.genre,
                 "lyrics": song.lyrics if song.lyrics else "Lyrics not Available",

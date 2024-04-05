@@ -1,12 +1,10 @@
 import click
-import jwt
-import json
-from datetime import datetime, timedelta
+from datetime import timedelta
 from types import SimpleNamespace
-from flask import render_template, flash, redirect, url_for, request, jsonify, current_app
+from flask import render_template, flash, redirect, url_for, request, jsonify
 from flask_jwt_extended import create_access_token, unset_jwt_cookies, jwt_required
-from flask_login import login_user, current_user, logout_user
-from controllers.forms import RegistrationForm, LoginForm
+from flask_login import login_user, current_user
+from controllers.forms import LoginForm
 from controllers import app, db, bcrypt
 from models import User
 

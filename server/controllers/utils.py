@@ -2,48 +2,41 @@ import os
 import uuid
 import base64
 from io import BytesIO
+from flask import jsonify
 from mutagen.mp3 import MP3
 from functools import wraps
 import matplotlib.pyplot as plt
+from datetime import date, timedelta
 from matplotlib.figure import Figure
-from flask_login import current_user
-from datetime import datetime, timedelta
-from flask import flash, redirect, url_for
+from flask_jwt_extended import get_jwt_identity
+
+from models import User
+
+# Current User instance, replacement for flask_login's current_user
+def current_user_instance():
+    user = get_jwt_identity()
+    return User.query.filter_by(user_id=user).first()
 
 # Decorators
-def user_required(func):
-    @wraps(func)
-    def decorated_function(*args, **kwargs):
-        if not current_user.is_authenticated:
-            flash("You need to login first.", "info")
-            return redirect(url_for("login"))
-        elif current_user.is_admin:
-            return {"message":"unauthorized"}, 401
-        return func(*args, **kwargs)
-    return decorated_function
-
 def creator_required(func):
     @wraps(func)
-    def decorated_function(*args, **kwargs):
-        if not current_user.is_authenticated:
-            flash("You need to login first.", "info")
-            return redirect(url_for("login"))
-        elif not (current_user.is_creator or current_user.is_admin):
-            flash("Register as a creator first.", "info")
-            return redirect(url_for("account"))
-        return func(*args, **kwargs)
-    return decorated_function
+    def wrapper(*args, **kwargs):
+        current_user = current_user_instance()
+        if current_user and current_user.is_creator:
+            return func(*args, **kwargs)
+        else:
+            return jsonify({"error": {"code": 401, "message": "NOT A CREATOR"}}), 401
+    return wrapper
 
 def admin_required(func):
     @wraps(func)
-    def decorated_function(*args, **kwargs):
-        if not current_user.is_authenticated:
-            flash("You need to login as an admin first.", "info")
-            return redirect(url_for("admin_login"))
-        elif not current_user.is_admin:
-            return {"message":"unauthorized"}, 401
-        return func(*args, **kwargs)
-    return decorated_function
+    def wrapper(*args, **kwargs):
+        current_user = current_user_instance()
+        if current_user and current_user.is_admin:
+            return func(*args, **kwargs)
+        else:
+            return jsonify({"error": {"code": 401, "message": "NOT AN ADMIN"}}), 401
+    return wrapper
 
 
 # song management
@@ -101,7 +94,7 @@ def current_users_chart(users):
     fig = Figure()
 
     # Get the current date
-    current_date = datetime.utcnow().date()
+    current_date = date.today()
 
     # Initialize data for the cumulative line chart
     dates = [current_date - timedelta(days=i) for i in range(6, -1, -1)]  # Past 7 days
