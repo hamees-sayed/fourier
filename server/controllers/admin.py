@@ -121,13 +121,10 @@ def admin_albums():
 @jwt_required()
 @admin_required
 def delete_user(user_id):
-    user = User.query.get(user_id)
+    user = User.query.filter(User.user_id==user_id, User.is_creator==False, User.is_admin==False).first()
     ratings = Rating.query.filter_by(user_id=user_id).all()
     playlists = Playlist.query.filter_by(user_id=user_id).all()
-    creator = Creator.query.filter_by(user_id=user_id).first()
-    if creator:
-        flash("User is a creator. Delete the creator first.", "info")
-        return redirect(url_for("users"))
+
     if user:
         db.session.delete(user)
         for rating in ratings:
@@ -135,10 +132,9 @@ def delete_user(user_id):
         for playlist in playlists:
             db.session.delete(playlist)
         db.session.commit()
-        return redirect(url_for("users"))
+        return jsonify({"message": "User deleted successfully"}), 200
     else:
-        flash("User not found", "info")
-        return redirect(url_for("users"))
+        return jsonify({"error": {"code": 400, "message": "USER NOT FOUND"}}), 400
 
 @app.route("/creator/<int:creator_id>/delete")
 @jwt_required()
@@ -150,16 +146,15 @@ def delete_creator(creator_id):
         songs = Song.query.filter_by(creator_id=creator.creator_id).all()
         albums = Album.query.filter_by(creator_id=creator.creator_id).all()
         for song in songs:
-            delete_song(song.song_id)
+            delete_song(song.song_file)
         for album in albums:
             delete_album(album.album_id)
         db.session.delete(creator)
         user.is_creator = False
         db.session.commit()
-        return redirect(url_for("creators"))
+        return jsonify({"message": "Creator deleted successfully"}), 200
     else:
-        flash("Creator not found", "info")
-        return redirect(url_for("creators"))
+        return jsonify({"error": {"code": 400, "message": "CREATOR NOT FOUND"}}), 400
 
 @app.route("/creator/<int:creator_id>/blacklist")
 @jwt_required()
@@ -169,22 +164,21 @@ def blacklist_creator(creator_id):
     if creator:
         creator.is_blacklisted=True
         db.session.commit()
-        return redirect(url_for("creators"))
+        return jsonify({"message": "Creator blacklisted successfully", "creator_id": creator_id}), 200
     else:
-        flash("Creator not found", "info")
-        return redirect(url_for("creators"))
+        return jsonify({"error": {"code": 400, "message": "CREATOR NOT FOUND"}}), 400
 
 @app.route("/creator/<int:creator_id>/whitelist")
+@jwt_required()
 @admin_required
 def whitelist_creator(creator_id):
     creator = Creator.query.get(creator_id)
     if creator:
         creator.is_blacklisted=False
         db.session.commit()
-        return redirect(url_for("creators"))
+        return jsonify({"message": "Creator whitelisted successfully", "creator_id": creator_id}), 200
     else:
-        flash("Creator not found", "info")
-        return redirect(url_for("creators"))
+        return jsonify({"error": {"code": 400, "message": "CREATOR NOT FOUND"}}), 400
 
 @app.route("/flag/<int:song_id>/song")
 @jwt_required()
@@ -195,14 +189,13 @@ def song_flagging(song_id):
         if not song.is_flagged:
             song.is_flagged=True
             db.session.commit()
-            return redirect(url_for("admin_songs"))
+            return jsonify({"message": "Song flagged successfully", "song_id": song_id}), 200
         else:
             song.is_flagged=False
             db.session.commit()
-            return redirect(url_for("admin_songs"))
+            return jsonify({"message": "Song unflagged successfully", "song_id": song_id}), 200
     else:
-        flash("Song not found", "info")
-        return redirect(url_for("admin_songs"))
+        return jsonify({"error": {"code": 400, "message": "SONG NOT FOUND"}}), 400
 
 @app.route("/flag/<int:album_id>/album")
 @jwt_required()
@@ -213,11 +206,10 @@ def album_flagging(album_id):
         if album.is_flagged:
             album.is_flagged=False
             db.session.commit()
-            return redirect(url_for("admin_albums"))
+            return jsonify({"message": "Album unflagged successfully", "song_id": album_id}), 200
         else:
             album.is_flagged=True
             db.session.commit()
-            return redirect(url_for("admin_albums"))
+            return jsonify({"message": "Album flagged successfully", "song_id": album_id}), 200
     else:
-        flash("Album not found", "info")
-        return redirect(url_for("admin_albums"))
+        return jsonify({"error": {"code": 400, "message": "SONG NOT FOUND"}}), 400

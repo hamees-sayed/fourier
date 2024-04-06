@@ -3,6 +3,7 @@ from flask import jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from types import SimpleNamespace
 from controllers import app, db
+from controllers.utils import user_required
 from models import User, Song, Playlist, Playlist_song, Creator, Rating
 
 
@@ -23,6 +24,7 @@ def account():
 
 @app.route("/register_creator", methods=["GET", "POST"])
 @jwt_required()
+@user_required
 def register_creator():
     user = get_jwt_identity()
     current_user = User.query.filter_by(user_id=user).first()

@@ -4,7 +4,7 @@ from types import SimpleNamespace
 from flask_jwt_extended import jwt_required
 from controllers import app, db
 from models import Creator, Album, Song, Rating
-from controllers.utils import creator_required, save_song_file, delete_song_file, song_duration, song_rating_histogram, current_user_instance
+from controllers.utils import creator_required, save_song_file, delete_song_file, song_duration, song_rating_histogram, current_user_instance, creator_or_admin
 
 
 @app.route("/creator")
@@ -75,7 +75,7 @@ def albums():
     
 @app.route("/album/<int:album_id>/delete")
 @jwt_required()
-@creator_required
+@creator_or_admin
 def delete_album(album_id):
     current_user = current_user_instance()
     album = Album.query.filter(Album.creator_id == current_user.creator.creator_id, Album.album_id == album_id).first()
@@ -179,7 +179,7 @@ def songs():
 
 @app.route("/song/<int:song_id>/delete")
 @jwt_required()
-@creator_required
+@creator_or_admin
 def delete_song(song_id):
     current_user = current_user_instance()
     song = Song.query.filter(Song.creator_id == current_user.creator.creator_id, Song.song_id == song_id).first()

@@ -10,7 +10,8 @@ from datetime import date, timedelta
 from matplotlib.figure import Figure
 from flask_jwt_extended import get_jwt_identity
 
-from models import User
+from controllers import db
+from models import User, Album
 
 # Current User instance, replacement for flask_login's current_user
 def current_user_instance():
@@ -38,6 +39,25 @@ def admin_required(func):
             return jsonify({"error": {"code": 401, "message": "NOT AN ADMIN"}}), 401
     return wrapper
 
+def user_required(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        current_user = current_user_instance()
+        if current_user and not (current_user.is_admin or current_user.is_creator):
+            return func(*args, **kwargs)
+        else:
+            return jsonify({"error": {"code": 401, "message": "ACTION NOT ALLOWED"}}), 401
+    return wrapper
+
+def creator_or_admin(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        current_user = current_user_instance()
+        if current_user and (current_user.is_creator or current_user.is_admin):
+            return func(*args, **kwargs)
+        else:
+            return jsonify({"error": {"code": 401, "message": "NOT A CREATOR OR ADMIN"}}), 401
+    return wrapper
 
 # song management
 def save_song_file(song_file):
