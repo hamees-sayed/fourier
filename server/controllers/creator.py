@@ -175,6 +175,7 @@ def songs():
                 "lyrics": song.lyrics if song.lyrics else "Lyrics not Available",
                 "song_file_url": url_for('static', filename='songs/'+song.song_file),
                 "is_flagged": True if song.is_flagged else False,
+                "album_id": song.album_id,
             })
     return jsonify(data)
 
@@ -211,7 +212,10 @@ def update_song(song_id):
         song.album_id = album_id
         song.song_title = data.song_title
         song.genre = data.song_genre
-        song.lyrics = data.song_lyrics
+        if data.song_lyrics=="":
+            song.lyrics = "Lyrics not Available"
+        else:
+            song.lyrics = data.song_lyrics
         db.session.commit()
         flash('Song updated successfully!', 'success')
         return jsonify({

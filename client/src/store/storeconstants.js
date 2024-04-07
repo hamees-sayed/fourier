@@ -11,3 +11,5 @@ export const UPDATE_PLAYLIST_ACTION = '[actions] updates playlist';
 export const ADD_SONG_TO_PLAYLIST_ACTION = '[actions] adds song to playlist';
 export const CREATE_NEW_ALBUM_ACTION = '[actions] creates new album';
 export const UPDATE_ALBUM_ACTION = '[actions] updates album';
+export const CREATE_NEW_SONG_ACTION = '[actions] creates new song';
+export const UPDATE_SONG_ACTION = '[actions] updates song';

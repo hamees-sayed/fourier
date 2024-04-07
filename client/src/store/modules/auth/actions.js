@@ -1,5 +1,5 @@
 import Axios from "axios";
-import { REGISTER_ACTION, SET_USER_INFO_MUTATION, LOGIN_ACTION, REGISTER_CREATOR_ACTION, CREATE_PLAYLIST_ACTION, UPDATE_PLAYLIST_ACTION, ADD_SONG_TO_PLAYLIST_ACTION, CREATE_NEW_ALBUM_ACTION, UPDATE_ALBUM_ACTION } from "../../storeconstants";
+import { REGISTER_ACTION, SET_USER_INFO_MUTATION, LOGIN_ACTION, REGISTER_CREATOR_ACTION, CREATE_PLAYLIST_ACTION, UPDATE_PLAYLIST_ACTION, ADD_SONG_TO_PLAYLIST_ACTION, CREATE_NEW_ALBUM_ACTION, UPDATE_ALBUM_ACTION, CREATE_NEW_SONG_ACTION, UPDATE_SONG_ACTION } from "../../storeconstants";
 
 export default {
     async [LOGIN_ACTION](context, payload){
@@ -104,6 +104,29 @@ export default {
             album_genre: payload.genre
         }
         let response = await Axios.post(`https://miniature-space-trout-gv5pxqq6457cvj4w-5000.app.github.dev/album/${payload.album_id}/update`,
+        postData,
+        {headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } });
+    },
+    async [CREATE_NEW_SONG_ACTION](_, payload){
+        let postData = {
+            song_title: payload.title,
+            song_genre: payload.genre,
+            album_id: payload.album_id,
+            lyrics: payload.lyrics,
+            song_file: payload.song_file,
+        }
+        let response = await Axios.post(`https://miniature-space-trout-gv5pxqq6457cvj4w-5000.app.github.dev/song/new`,
+        postData,
+        {headers: { Authorization: `Bearer ${localStorage.getItem("token")}`, 'Content-Type': 'multipart/form-data' } });
+    },
+    async [UPDATE_SONG_ACTION](_, payload){
+        let postData = {
+            song_title: payload.title,
+            song_genre: payload.genre,
+            album_id: payload.album_id,
+            song_lyrics: payload.lyrics,
+        }
+        let response = await Axios.post(`https://miniature-space-trout-gv5pxqq6457cvj4w-5000.app.github.dev/song/${payload.song_id}/update`,
         postData,
         {headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } });
     }

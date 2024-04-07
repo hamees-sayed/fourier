@@ -5,7 +5,7 @@
   
       <div class="buttons mb-3">
         <router-link to="/creator/albums" class="btn btn-light border mx-3" role="button">View your Albums</router-link>
-        <router-link to="#" class="btn btn-light border" role="button">View your Songs</router-link>
+        <router-link to="/creator/songs" class="btn btn-light border" role="button">View your Songs</router-link>
       </div>
   
       <div>

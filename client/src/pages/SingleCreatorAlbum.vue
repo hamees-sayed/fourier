@@ -1,7 +1,7 @@
 <template>
     <h1>{{ album.album_creator }}</h1>
     <br>
-    <div v-if="data.length === 0">
+    <div v-if="len === 0">
       <h3>No songs in the album.</h3>
     </div>
     <div v-else>
@@ -38,20 +38,22 @@
             return {
                 id: this.$route.params.id,
                 data: [],
+                len: 0,
                 album: {},
             }
         },
         computed: {
             ...mapGetters('auth', {
-            isAuthenticated: IS_AUTHENTICATED,
-            })
+                isAuthenticated: IS_AUTHENTICATED,
+            }),
         },
         mounted () {
             axios.get(`https://miniature-space-trout-gv5pxqq6457cvj4w-5000.app.github.dev/album/${this.id}`, 
             { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } })
             .then(response => {
-                this.data = response.data.album.songs;
+                this.data = response.data.songs;
                 this.album = response.data.album;
+                this.len = response.data.songs.length
             })
         },
         methods: {

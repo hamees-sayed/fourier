@@ -20,7 +20,7 @@
         </ul>
         <span class="navbar-text">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            <li class="nav-item" v-if="isAuthenticated && !isCreator">
+            <li class="nav-item" v-if="isAuthenticated && !isCreator && !isAdmin">
               <a class="nav-link btn btn-link" href="/creator/register">Become Creator</a>
             </li>
             <li class="nav-item" v-if="isAuthenticated && isCreator">

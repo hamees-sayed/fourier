@@ -17,6 +17,9 @@ import CreatorAlbums from './pages/CreatorAlbums.vue';
 import Form_NewAlbum from './pages/Form_NewAlbum.vue';
 import Form_UpdateAlbum from './pages/Form_UpdateAlbum.vue';
 import SingleCreatorAlbum from './pages/SingleCreatorAlbum.vue';
+import CreatorSongs from './pages/CreatorSongs.vue';
+import Form_NewSong from './pages/Form_NewSong.vue';
+import Form_UpdateSong from './pages/Form_UpdateSong.vue';
 
 
 const routes = [
@@ -26,9 +29,12 @@ const routes = [
     { path: '/account', component: Account, meta: { auth: true } },
     { path: '/creator', component: CreatorAccount, meta: { auth: true } },
     { path: '/creator/albums', component: CreatorAlbums, meta: { auth: true } },
+    { path: '/creator/songs', component: CreatorSongs, meta: { auth: true } },
     { path: '/creator/album/new', component: Form_NewAlbum, meta: { auth: true } },
     { path: '/creator/album/update/:id', component: Form_UpdateAlbum, meta: { auth: true } },
     { path: '/creator/album/:id', component: SingleCreatorAlbum, meta: { auth: true } },
+    { path: '/creator/song/new', component: Form_NewSong, meta: { auth: true } },
+    { path: '/creator/song/update/:id', component: Form_UpdateSong, meta: { auth: true } },
     { path: '/albums', component: Albums, meta: { auth: true } },
     { path: '/albums/:id', component: SingleAlbum, meta: { auth: true } },
     { path: '/creator/register', component: Form_RegisterCreator, meta: { auth: true } },
