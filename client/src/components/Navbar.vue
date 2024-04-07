@@ -23,6 +23,9 @@
             <li class="nav-item" v-if="isAuthenticated && !isCreator">
               <a class="nav-link btn btn-link" href="/creator/register">Become Creator</a>
             </li>
+            <li class="nav-item" v-if="isAuthenticated && isCreator">
+              <a class="nav-link btn btn-link" href="/creator">Creator Dashboard</a>
+            </li>
             <li class="nav-item" v-if="isAuthenticated">
               <a class="nav-link btn btn-link" href="/account">Account</a>
             </li>

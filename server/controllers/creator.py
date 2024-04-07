@@ -26,7 +26,8 @@ def creator():
         "username": current_user.username,
         "num_of_songs": songs,
         "num_of_albums": albums,
-        "song_rating_hist": song_rating_hist
+        "song_rating_hist": song_rating_hist,
+        "is_blacklisted": current_user.creator.is_blacklisted,
     }
     return jsonify(data)
 
@@ -230,16 +231,18 @@ def get_album(album_id):
     songs = Song.query.filter_by(album_id=album_id).all()
     album = Album.query.filter(Album.album_id==album_id, Album.creator_id==current_user.creator.creator_id).first()
     data = []
+    album = {
+        "album_name": album.album_name,
+        "album_genre": album.genre
+    }
     if len(songs) != 0:
         for song in songs:
             data.append({
                 "id": song.song_id,
-                "album_name": album.album_name,
-                "album_genre": album.genre,
                 "title": song.song_title,
                 "genre": song.genre,
                 "lyrics": song.lyrics if song.lyrics else "Lyrics not Available",
                 "song_file_url": url_for('static', filename='songs/'+song.song_file),
                 "is_flagged": True if song.is_flagged else False,
             })
-    return jsonify(data)
+    return jsonify({"album": album, "songs": data})

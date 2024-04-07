@@ -1,5 +1,5 @@
 import Axios from "axios";
-import { REGISTER_ACTION, SET_USER_INFO_MUTATION, LOGIN_ACTION, REGISTER_CREATOR_ACTION, CREATE_PLAYLIST_ACTION, UPDATE_PLAYLIST_ACTION, ADD_SONG_TO_PLAYLIST_ACTION } from "../../storeconstants";
+import { REGISTER_ACTION, SET_USER_INFO_MUTATION, LOGIN_ACTION, REGISTER_CREATOR_ACTION, CREATE_PLAYLIST_ACTION, UPDATE_PLAYLIST_ACTION, ADD_SONG_TO_PLAYLIST_ACTION, CREATE_NEW_ALBUM_ACTION, UPDATE_ALBUM_ACTION } from "../../storeconstants";
 
 export default {
     async [LOGIN_ACTION](context, payload){
@@ -89,4 +89,22 @@ export default {
             console.log(response.data)
         }
     },
+    async [CREATE_NEW_ALBUM_ACTION](_, payload){
+        let postData = {
+            album_name: payload.title,
+            album_genre: payload.genre
+        }
+        let response = await Axios.post(`https://miniature-space-trout-gv5pxqq6457cvj4w-5000.app.github.dev/album/new`,
+        postData,
+        {headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } });
+    },
+    async [UPDATE_ALBUM_ACTION](_, payload){
+        let postData = {
+            album_name: payload.title,
+            album_genre: payload.genre
+        }
+        let response = await Axios.post(`https://miniature-space-trout-gv5pxqq6457cvj4w-5000.app.github.dev/album/${payload.album_id}/update`,
+        postData,
+        {headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } });
+    }
 };
