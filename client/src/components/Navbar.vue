@@ -7,12 +7,26 @@
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
-      <div class="d-flex" v-if="isAuthenticated">
+      <div class="d-flex" v-if="isAuthenticated && !isAdmin">
         <div class="header__option">
           <a class="btn btn-primary active" href="/" role="button">Songs 🎶</a>
         </div>
         <div class="header__option">
           <a class="btn btn-primary active" href="/albums" role="button">Albums 💿</a>
+        </div>
+      </div>
+      <div class="d-flex" v-if="isAuthenticated && isAdmin">
+        <div class="header__option">
+          <a class="btn btn-primary active" href="/" role="button">Songs 🎶</a>
+        </div>
+        <div class="header__option">
+          <a class="btn btn-primary active" href="/admin/albums" role="button">Albums 💿</a>
+        </div>
+        <div class="header__option">
+          <a class="btn btn-primary active" href="/admin/users" role="button">Users 👾</a>
+        </div>
+        <div class="header__option">
+          <a class="btn btn-primary active" href="/admin/creators" role="button">Creators 🎸</a>
         </div>
       </div>
       <div class="collapse navbar-collapse" id="navbarText">
@@ -26,8 +40,11 @@
             <li class="nav-item" v-if="isAuthenticated && isCreator">
               <a class="nav-link btn btn-link" href="/creator">Creator Dashboard</a>
             </li>
-            <li class="nav-item" v-if="isAuthenticated">
+            <li class="nav-item" v-if="isAuthenticated && !isAdmin">
               <a class="nav-link btn btn-link" href="/account">Account</a>
+            </li>
+            <li class="nav-item" v-if="isAuthenticated && isAdmin">
+              <a class="nav-link btn btn-link" href="/admin/dashboard">App Dashboard</a>
             </li>
             <li class="nav-item" v-if="isAuthenticated">
               <a class="nav-link btn btn-link" @click.prevent="logOut">Logout</a>

@@ -20,6 +20,11 @@ import SingleCreatorAlbum from './pages/SingleCreatorAlbum.vue';
 import CreatorSongs from './pages/CreatorSongs.vue';
 import Form_NewSong from './pages/Form_NewSong.vue';
 import Form_UpdateSong from './pages/Form_UpdateSong.vue';
+import AdminAlbums from './pages/AdminAlbums.vue';
+import AdminCreators from './pages/AdminCreators.vue';
+import AdminDashboard from './pages/AdminDashboard.vue';
+import AdminUsers from './pages/AdminUsers.vue';
+import Unauthorized from './pages/Unauthorized.vue';
 
 
 const routes = [
@@ -43,6 +48,11 @@ const routes = [
     { path: '/playlist/:id', component: SinglePlaylist, meta: { auth: true } },
     { path: '/playlist/update/:id', component: Form_UpdatePlaylist, meta: { auth: true } },
     { path: '/playlist/add/:id', component: Form_AddToPlaylist, meta: { auth: true } },
+    { path: '/admin/albums', component: AdminAlbums, meta: { auth: true, requiresAdmin: true } },
+    { path: '/admin/creators', component: AdminCreators, meta: { auth: true, requiresAdmin: true } },
+    { path: '/admin/dashboard', component: AdminDashboard, meta: { auth: true, requiresAdmin: true } },
+    { path: '/admin/users', component: AdminUsers, meta: { auth: true, requiresAdmin: true } },
+    { path: '/unauthorized', component: Unauthorized, meta: { auth: false } },
     { path: '/:pathMatch(.*)', component: PageNotFound, meta: { auth: false } },
 ]
   
@@ -52,11 +62,17 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  if (to.meta.auth && !localStorage.getItem('token')) {
+  const isAuthenticated = localStorage.getItem('token');
+  const isAdmin = localStorage.getItem('is_admin');
+  const isCreator = localStorage.getItem('is_creator');
+
+  if (to.meta.auth && !isAuthenticated) {
     next('/login');
+  } else if (to.meta.requiresAdmin && isAdmin !== 'true') {
+    next('/unauthorized');
   } else {
     next();
   }
-})
+});
 
 export default router;

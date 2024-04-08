@@ -79,7 +79,10 @@ def albums():
 @creator_or_admin
 def delete_album(album_id):
     current_user = current_user_instance()
-    album = Album.query.filter(Album.creator_id == current_user.creator.creator_id, Album.album_id == album_id).first()
+    if current_user.is_creator:
+        album = Album.query.filter(Album.creator_id == current_user.creator.creator_id, Album.album_id == album_id).first()
+    else:
+        album = Album.query.get(album_id)
     if album:
         db.session.delete(album)
         db.session.commit()
@@ -184,7 +187,10 @@ def songs():
 @creator_or_admin
 def delete_song(song_id):
     current_user = current_user_instance()
-    song = Song.query.filter(Song.creator_id == current_user.creator.creator_id, Song.song_id == song_id).first()
+    if current_user.is_creator:
+        song = Song.query.filter(Song.creator_id == current_user.creator.creator_id, Song.song_id == song_id).first()
+    else:
+        song = Song.query.get(song_id)
     if song:
         rating = Rating.query.filter_by(song_id=song_id).all()
         for rate in rating:

@@ -102,6 +102,7 @@ def song_rating_histogram(song, rating):
     ax.set_xlabel('Song Title')
     ax.set_ylabel('Rating')
     ax.set_title('Song Performance')
+    ax.set_ylim(0, 5)
     buf = BytesIO()
     fig.savefig(buf, format="png")
 

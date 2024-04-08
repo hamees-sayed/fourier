@@ -125,10 +125,9 @@ def album_search():
     ).all()
 
     data = []
-
-    data = []
     for album, creator in search_result:
-        data.append({
+        if not(album.is_flagged or creator.is_blacklisted):
+            data.append({
             "id": album.album_id,
             "title": album.album_name,
             "genre": album.genre,
