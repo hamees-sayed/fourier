@@ -17,3 +17,4 @@ flask-jwt-extended
 flask-security-too
 flask-caching
 redis
+celery[redis]

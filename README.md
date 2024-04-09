@@ -2,14 +2,21 @@
 
 
 ## Prerequisites:
-Have redis installed and running:
+Have redis installed and running: (In Terminal one)
 1. `$ sudo apt update`
 2. `$ sudo apt-get install redis-server`
 3. `$ sudo service redis-server start`
 
 > Refer to [docs](https://redis.io/docs/latest/operate/oss_and_stack/install/) if you have any problem running redis.
 
+### Setup Celery Workers:
+Open another terminal and run:
+1. `$ ./worker.sh`
+
+---
+
 ## Start App directly: 
+Open a third terminal and run:
 1. `./run.sh`
 ---
 OR RUN CLIENT AND SERVER INDIVIDUALLY 👇 

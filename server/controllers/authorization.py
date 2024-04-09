@@ -5,7 +5,7 @@ from flask import render_template, flash, redirect, url_for, request, jsonify
 from flask_jwt_extended import create_access_token, unset_jwt_cookies, jwt_required
 from flask_login import login_user, current_user
 from controllers.forms import LoginForm
-from controllers import app, db, bcrypt
+from controllers import app, db, bcrypt, tasks
 from models import User
 
 
@@ -72,7 +72,6 @@ def register():
     access_token = create_access_token(identity=user.user_id, expires_delta=timedelta(days=1))
 
     response = jsonify({"token": access_token, "user_id": user.user_id, "username": user.username, "email": user.email, "is_admin": user.is_admin, "is_creator": user.is_creator})
-    print(response)
     return response, 201
 
 
@@ -86,7 +85,6 @@ def login():
         access_token = create_access_token(identity=user.user_id, expires_delta=timedelta(days=1))
 
         response = jsonify({"token": access_token, "user_id": user.user_id, "username": user.username, "email": user.email, "is_admin": user.is_admin, "is_creator": user.is_creator})
-        print(response)
         return response, 201
     else:
         return jsonify({ "error" : {'message': 'INVALID CREDENTIALS', 'authenticated': False, 'code': 401 }}), 401
@@ -102,3 +100,9 @@ def logout():
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html', title='404'), 404
+
+@app.route("/hello")
+def hello():
+    job = tasks.print_current_time_job.apply_async()
+    result = job.wait()
+    return jsonify({"msg": str(result)}), 200
