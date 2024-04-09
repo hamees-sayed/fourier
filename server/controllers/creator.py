@@ -2,7 +2,7 @@ from flask import flash, url_for, request
 from flask import jsonify
 from types import SimpleNamespace
 from flask_jwt_extended import jwt_required
-from controllers import app, db
+from controllers import app, db, cache, redis_client
 from models import Creator, Album, Song, Rating
 from controllers.utils import creator_required, save_song_file, delete_song_file, song_duration, song_rating_histogram, current_user_instance, creator_or_admin
 
@@ -10,7 +10,12 @@ from controllers.utils import creator_required, save_song_file, delete_song_file
 @app.route("/creator")
 @jwt_required()
 @creator_required
+@cache.cached(timeout=90, key_prefix="creator_dashboard")
 def creator():
+    cached_response = redis_client.get("creator_dashboard")
+    if cached_response:
+        return jsonify(cached_response)
+    
     current_user = current_user_instance()
     songs = Song.query.filter_by(creator_id=current_user.creator.creator_id).count()
     albums = Album.query.filter_by(creator_id=current_user.creator.creator_id).count()
@@ -61,7 +66,12 @@ def new_album():
 @app.route("/album")
 @jwt_required()
 @creator_required
+@cache.cached(timeout=90, key_prefix="creator_albums")
 def albums():
+    cached_response = redis_client.get("creator_albums")
+    if cached_response:
+        return jsonify(cached_response)
+    
     current_user = current_user_instance()
     albums = Album.query.filter_by(creator_id=current_user.creator.creator_id).order_by(Album.created_at.desc()).all()
     data = []
@@ -165,7 +175,12 @@ def new_song():
 @app.route("/song")
 @jwt_required()
 @creator_required
+@cache.cached(timeout=90, key_prefix="creator_songs")
 def songs():
+    cached_response = redis_client.get("creator_songs")
+    if cached_response:
+        return jsonify(cached_response)
+    
     current_user = current_user_instance()
     songs = Song.query.filter_by(creator_id=current_user.creator.creator_id).order_by(Song.created_at.desc()).all()
     data = []
@@ -236,7 +251,12 @@ def update_song(song_id):
 @app.route("/album/<int:album_id>")
 @jwt_required()
 @creator_required
+@cache.cached(timeout=90, key_prefix="creator_album")
 def get_album(album_id):
+    cached_response = redis_client.get("creator_album")
+    if cached_response:
+        return jsonify(cached_response)
+    
     current_user = current_user_instance()
     songs = Song.query.filter_by(album_id=album_id).all()
     album = Album.query.filter(Album.album_id==album_id, Album.creator_id==current_user.creator.creator_id).first()

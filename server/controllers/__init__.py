@@ -1,14 +1,23 @@
 import os
+import redis
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
-from flask_bcrypt import Bcrypt
-from flask_login import LoginManager
 from flask_cors import CORS
+from flask_caching import Cache
+from flask_bcrypt import Bcrypt
+from flask_migrate import Migrate
+from flask_login import LoginManager
+from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
 
 app = Flask(__name__, template_folder="../templates", static_folder = "../static")
 CORS(app)
+app.config['CACHE_TYPE'] = 'redis'
+app.config['CACHE_REDIS_HOST'] = 'localhost'
+app.config['CACHE_REDIS_PORT'] = 6379
+app.config['CACHE_REDIS_DB'] = 0
+cache = Cache(app=app)
+cache.init_app(app)
+redis_client = redis.Redis(host='localhost', port=6379, db=0)
 jwt = JWTManager(app)
 current_dir = os.path.abspath(os.path.dirname(__file__))
 project_root = os.path.abspath(os.path.join(current_dir, '..'))

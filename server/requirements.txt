@@ -15,3 +15,5 @@ plotly
 Flask-Cors
 flask-jwt-extended
 flask-security-too
+flask-caching
+redis
