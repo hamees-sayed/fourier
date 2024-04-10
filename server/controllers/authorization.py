@@ -100,9 +100,3 @@ def logout():
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html', title='404'), 404
-
-@app.route("/hello")
-def hello():
-    job = tasks.print_current_time_job.apply_async()
-    result = job.wait()
-    return jsonify({"msg": str(result)}), 200

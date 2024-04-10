@@ -16,6 +16,6 @@ else
 fi
 
 # Run the server
-celery -A app.celery worker -l info 
+celery -A app.celery worker -l info -B
 
 

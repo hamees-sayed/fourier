@@ -10,8 +10,6 @@ from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
 
-from controllers import workers 
-
 app = Flask(__name__, template_folder="../templates", static_folder = "../static")
 CORS(app)
 app.config['CACHE_TYPE'] = 'redis'
@@ -28,17 +26,23 @@ app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(project_root, 
 db = SQLAlchemy(app)
 app.app_context().push()
 
-app.config['CELERY_BROKER_URL'] = 'redis://localhost:6379/1'
-app.config['result_backend'] = 'redis://localhost:6379/2'
-app.config['broker_connection_retry_on_startup'] = True
-app.config['imports']=('controllers.tasks',)
-app.config['timezone']='Asia/Kolkata'
-celery = workers.celery
-celery.conf.update(
-    broker_url=app.config['CELERY_BROKER_URL'],
-    result_backend=app.config['result_backend']
-)
-celery.Task = workers.ContextTask
+def create_celery_inst(app):
+    celery = Celery(app.import_name)
+    celery.conf.update(
+        broker_url='redis://localhost:6379/1',
+        result_backend='redis://localhost:6379/2',
+        timezone='Asia/Kolkata'
+    )
+
+    class ContextTask(celery.Task):
+        def __call__(self, *args, **kwargs):
+            with app.app_context():
+                return self.run(*args, **kwargs)
+
+    celery.Task = ContextTask
+    return celery
+
+celery  = create_celery_inst(app)
 
 bcrypt = Bcrypt(app)
 migrate = Migrate(app, db)

@@ -1,10 +1,10 @@
-from celery import Celery
-from controllers import app
+from celery.schedules import crontab
+from controllers import app, celery
+from controllers.tasks import print_hello_world
 
-app.config['CELERY_BROKER_URL'] = 'redis://localhost:6379/1'
-app.config['CELERY_RESULT_BACKEND'] = 'redis://localhost:6379/1'
-celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
-celery.conf.update(app.config)
+@celery.on_after_finalize.connect
+def setup_periodic_tasks(sender, **kwargs):
+    sender.add_periodic_task(10.0, print_hello_world.s(), name="add every 10 seconds")
 
 if __name__ == "__main__":
     app.run(debug=True)
