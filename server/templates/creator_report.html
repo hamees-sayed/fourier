@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Monthly Creator Report</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h2 class="mt-4">Great to see you, {{ creator_name }}</h2>
+        <div class="row mt-4">
+            <!-- Left Column -->
+            <div class="col-md-6">
+                <ul class="list-group">
+                    <li class="list-group-item list-group-item-primary">Total Number of Songs: {{ songs }}</li>
+                    <li class="list-group-item list-group-item-warning">Total Number of Albums: {{ albums }}</li>
+                    <li class="list-group-item list-group-item-info">Monthly Song Uploads: {{ monthly_song_uploads }}</li>
+                    <li class="list-group-item list-group-item-success">Monthly Album Uploads: {{ monthly_album_uploads }}</li>
+                </ul>
+            </div>
+            <!-- Right Column -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <!-- Histogram placeholder -->
+                        <img src="data:image/png;base64,{{ song_rating_hist }}" alt="Song Rating Histogram" class="img-fluid">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Monthly Performance Summary -->
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <h3 class="mt-4">Monthly Performance Summary</h3>
+                <p>Dear {{ creator_name }},</p>
+                <p>We're excited to share with you the summary of your performance for the current month:</p>
+                <ul>
+                    <li>Total Songs Uploaded: {{ songs }}</li>
+                    <li>Total Albums Uploaded: {{ albums }}</li>
+                    <li>Monthly Song Uploads: {{ monthly_song_uploads }}</li>
+                    <li>Monthly Album Uploads: {{ monthly_album_uploads }}</li>
+                    <li>Average Song Rating: {{ monthly_avg_song_rating }}</li>
+                </ul>
+                <p>Keep up the great work!</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

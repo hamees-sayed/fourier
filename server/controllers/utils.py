@@ -10,7 +10,8 @@ from datetime import date, timedelta
 from matplotlib.figure import Figure
 from flask_jwt_extended import get_jwt_identity
 
-from models import User
+from controllers import db
+from models import User, Song, Album, Rating
 
 # Current User instance, replacement for flask_login's current_user
 def current_user_instance():
@@ -138,3 +139,40 @@ def current_users_chart(users):
     plt.close(fig)
 
     return base64.b64encode(buf.read()).decode("ascii")
+
+def get_monthly_song_uploads(creator_id):
+    current_month = date.today().replace(day=1)  # First day of the current month
+    next_month = current_month.replace(month=current_month.month + 1) if current_month.month < 12 else current_month.replace(year=current_month.year + 1, month=1)
+    
+    monthly_song_uploads = Song.query.filter(
+        Song.creator_id == creator_id,
+        Song.created_at >= current_month,
+        Song.created_at < next_month
+    ).count()
+    
+    return monthly_song_uploads
+
+def get_monthly_album_uploads(creator_id):
+    current_month = date.today().replace(day=1)  # First day of the current month
+    next_month = current_month.replace(month=current_month.month + 1) if current_month.month < 12 else current_month.replace(year=current_month.year + 1, month=1)
+    
+    monthly_album_uploads = Album.query.filter(
+        Album.creator_id == creator_id,
+        Album.created_at >= current_month,
+        Album.created_at < next_month
+    ).count()
+    
+    return monthly_album_uploads
+
+def get_monthly_avg_song_rating(creator_id):
+    current_month = date.today().replace(day=1)  # First day of the current month
+    next_month = current_month.replace(month=current_month.month + 1) if current_month.month < 12 else current_month.replace(year=current_month.year + 1, month=1)
+    
+    monthly_avg_song_rating = Rating.query.with_entities(db.func.avg(Rating.rating)).join(
+        Song, Rating.song_id == Song.song_id
+    ).filter(
+        Song.creator_id == creator_id,
+    ).scalar()
+    
+    # If there are no ratings for the month, return 0
+    return monthly_avg_song_rating or 0
