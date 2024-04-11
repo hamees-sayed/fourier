@@ -9,6 +9,10 @@ Have redis installed and running: (In Terminal one)
 
 > Refer to [docs](https://redis.io/docs/latest/operate/oss_and_stack/install/) if you have any problem running redis.
 
+Install Mailhog:
+1. [Guide](https://gist.github.com/dipenparmar12/4e6cd50d8d1303d5e914742f62659116) for Linux
+2. [Other Methods](https://kinsta.com/blog/mailhog/)
+
 ### Setup Celery Workers:
 Open another terminal and run:
 1. `$ ./worker.sh`

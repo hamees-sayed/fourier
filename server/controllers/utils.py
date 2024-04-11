@@ -10,8 +10,7 @@ from datetime import date, timedelta
 from matplotlib.figure import Figure
 from flask_jwt_extended import get_jwt_identity
 
-from controllers import db
-from models import User, Album
+from models import User
 
 # Current User instance, replacement for flask_login's current_user
 def current_user_instance():

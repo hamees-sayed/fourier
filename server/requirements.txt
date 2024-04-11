@@ -18,3 +18,4 @@ flask-security-too
 flask-caching
 redis
 celery[redis]
+python-dotenv
