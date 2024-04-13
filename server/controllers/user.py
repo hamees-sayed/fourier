@@ -2,21 +2,16 @@ from flask import url_for, request
 from flask import jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from types import SimpleNamespace
-from controllers import app, db, cache, redis_client
-from controllers.utils import user_required
+from controllers import app, db
+from controllers.utils import user_required, current_user_instance
 from models import User, Song, Playlist, Playlist_song, Creator, Rating
 
 
 @app.route("/account")
 @jwt_required()
-@cache.cached(timeout=90, key_prefix='user_account')
 def account():
-    cached_response = redis_client.get('user_account')
-    if cached_response:
-        return jsonify(cached_response)
-    
-    current_user = get_jwt_identity()
-    playlists = Playlist.query.filter_by(user_id=current_user).all()
+    current_user = current_user_instance()
+    playlists = Playlist.query.filter_by(user_id=current_user.user_id).all()
     data = []
     if playlists:
         for playlist in playlists:
@@ -113,12 +108,7 @@ def add_to_playlist(song_id):
 
 @app.route("/playlist/<int:playlist_id>")
 @jwt_required()
-@cache.cached(timeout=90, key_prefix='playlist')
 def get_playlist(playlist_id):
-    cached_response = redis_client.get('playlist')
-    if cached_response:
-        return jsonify(cached_response)
-    
     songs_in_playlist = Song.query.join(Playlist_song) \
         .join(Creator, Song.creator_id == Creator.creator_id) \
         .filter(

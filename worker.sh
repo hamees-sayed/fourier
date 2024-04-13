@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Start Mailhog server
+Mailhog &
+
 # Change directory to the server folder
 cd server
 

@@ -4,8 +4,7 @@ from types import SimpleNamespace
 from flask import render_template, flash, redirect, url_for, request, jsonify
 from flask_jwt_extended import create_access_token, unset_jwt_cookies, jwt_required
 from flask_login import login_user, current_user
-from controllers.forms import LoginForm
-from controllers import app, db, bcrypt, tasks
+from controllers import app, db, bcrypt
 from models import User
 
 
@@ -37,23 +36,6 @@ def delete_admin(email, password):
         click.echo(f"Admin '{user.username}' deleted successfully")
     else:
         click.echo("Admin not found. Check your email or password.")
-
-@app.route("/admin/login", methods=["GET", "POST"])
-def admin_login():
-    if current_user.is_authenticated:
-        if current_user.is_admin:
-            return redirect(url_for("admin"))
-        else:
-            return redirect(url_for("home"))
-    form = LoginForm()
-    if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data).first()
-        if user and bcrypt.check_password_hash(user.password, form.password.data) and user.is_admin:
-            login_user(user)
-            return redirect(url_for("admin"))
-        else:
-            flash("Login Unsuccessful. Please check email and password", "danger")
-    return render_template("admin_login.html", form=form, title="Admin Login", admin=True)
 
 
 @app.route("/register", methods=["GET", "POST"])

@@ -50,7 +50,10 @@ export default {
         this.username = localStorage.getItem("username");
         axios.get("https://miniature-space-trout-gv5pxqq6457cvj4w-5000.app.github.dev/account", 
         { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } })
-        .then(response => this.data = response.data)
+        .then(response => {
+          this.data = response.data
+          console.log(response.data)
+        })
     },
     methods: {
       deletePlaylist(id){

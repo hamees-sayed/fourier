@@ -10,12 +10,7 @@ from controllers.utils import admin_required, current_users_chart, song_rating_h
 @app.route("/admin")
 @jwt_required()
 @admin_required
-@cache.cached(timeout=90, key_prefix='admin_dashboard')
 def admin():
-    cached_response = redis_client.get('admin_dashboard')
-    if cached_response:
-        return jsonify(cached_response)
-    
     songs_and_ratings = db.session.query(
         Song.song_title,
         db.func.avg(Rating.rating).label('average_rating')) \
@@ -54,12 +49,7 @@ def admin():
 @app.route("/users")
 @jwt_required()
 @admin_required
-@cache.cached(timeout=90, key_prefix='users')
-def users():
-    cached_response = redis_client.get('users')
-    if cached_response:
-        return jsonify(cached_response)
-    
+def users():    
     users = User.query.filter_by(is_admin=False, is_creator=False).all()
     data = []
     for user in users:
@@ -74,12 +64,7 @@ def users():
 @app.route("/creators")
 @jwt_required()
 @admin_required
-@cache.cached(timeout=90, key_prefix='creators')
 def creators():
-    cached_response = redis_client.get('creators')
-    if cached_response:
-        return jsonify(cached_response)
-    
     creators = Creator.query.all()
     data = []
     for creator in creators:
@@ -94,12 +79,7 @@ def creators():
 @app.route("/admin/songs")
 @jwt_required()
 @admin_required
-@cache.cached(timeout=90, key_prefix='admin_songs')
 def admin_songs():
-    cached_response = redis_client.get('admin_songs')
-    if cached_response:
-        return jsonify(cached_response)
-    
     songs_with_ratings = db.session.query(Song, db.func.avg(Rating.rating).label('average_rating')) \
         .outerjoin(Rating, Song.song_id == Rating.song_id) \
         .group_by(Song.song_id) \
@@ -124,12 +104,7 @@ def admin_songs():
 @app.route("/admin/albums")
 @jwt_required()
 @admin_required
-@cache.cached(timeout=90, key_prefix='admin_albums')
 def admin_albums():
-    cached_response = redis_client.get("admin_albums")
-    if cached_response:
-        return jsonify(cached_response)
-        
     albums = db.session.query(Album, Creator).join(Creator, Album.creator_id == Creator.creator_id).all()
     data = []
     for album, creator in albums:
@@ -228,6 +203,8 @@ def song_flagging(song_id):
 def album_flagging(album_id):
     album = Album.query.get(album_id)
     if album:
+        if redis_client.exists("albums"):
+            redis_client.delete("albums")
         if album.is_flagged:
             album.is_flagged=False
             db.session.commit()

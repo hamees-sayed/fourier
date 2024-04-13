@@ -10,12 +10,7 @@ from controllers.utils import creator_required, save_song_file, delete_song_file
 @app.route("/creator")
 @jwt_required()
 @creator_required
-@cache.cached(timeout=90, key_prefix="creator_dashboard")
 def creator():
-    cached_response = redis_client.get("creator_dashboard")
-    if cached_response:
-        return jsonify(cached_response)
-    
     current_user = current_user_instance()
     songs = Song.query.filter_by(creator_id=current_user.creator.creator_id).count()
     albums = Album.query.filter_by(creator_id=current_user.creator.creator_id).count()
@@ -52,9 +47,10 @@ def new_album():
 
     # Create a new album if it doesn't exist
     album = Album(creator_id=album_creator.creator_id, album_name=data.album_name, genre=data.album_genre)
+    if redis_client.exists("flask_cache_albums"):
+        redis_client.delete("flask_cache_albums")
     db.session.add(album)
     db.session.commit()
-
     return jsonify({
         "creator_id": album.creator_id,
         "album_id": album.album_id,
@@ -66,12 +62,7 @@ def new_album():
 @app.route("/album")
 @jwt_required()
 @creator_required
-@cache.cached(timeout=90, key_prefix="creator_albums")
-def albums():
-    cached_response = redis_client.get("creator_albums")
-    if cached_response:
-        return jsonify(cached_response)
-    
+def albums():    
     current_user = current_user_instance()
     albums = Album.query.filter_by(creator_id=current_user.creator.creator_id).order_by(Album.created_at.desc()).all()
     data = []
@@ -95,6 +86,8 @@ def delete_album(album_id):
         album = Album.query.get(album_id)
     if album:
         db.session.delete(album)
+        if redis_client.exists("flask_cache_albums"):
+            redis_client.delete("flask_cache_albums")
         db.session.commit()
         return jsonify({"message": "Album deleted successfully!"}), 200
     else:
@@ -111,6 +104,8 @@ def update_album(album_id):
     if album:
         album.album_name = data.album_name
         album.genre = data.album_genre
+        if redis_client.exists("flask_cache_albums"):
+            redis_client.delete("flask_cache_albums")
         db.session.commit()
         return jsonify({
             "creator_id": album.creator_id,
@@ -175,12 +170,7 @@ def new_song():
 @app.route("/song")
 @jwt_required()
 @creator_required
-@cache.cached(timeout=90, key_prefix="creator_songs")
-def songs():
-    cached_response = redis_client.get("creator_songs")
-    if cached_response:
-        return jsonify(cached_response)
-    
+def songs():    
     current_user = current_user_instance()
     songs = Song.query.filter_by(creator_id=current_user.creator.creator_id).order_by(Song.created_at.desc()).all()
     data = []
@@ -251,12 +241,7 @@ def update_song(song_id):
 @app.route("/album/<int:album_id>")
 @jwt_required()
 @creator_required
-@cache.cached(timeout=90, key_prefix="creator_album")
 def get_album(album_id):
-    cached_response = redis_client.get("creator_album")
-    if cached_response:
-        return jsonify(cached_response)
-    
     current_user = current_user_instance()
     songs = Song.query.filter_by(album_id=album_id).all()
     album = Album.query.filter(Album.album_id==album_id, Album.creator_id==current_user.creator.creator_id).first()

@@ -31,12 +31,7 @@ def home_albums():
 
 @app.route("/albums/<int:album_id>")
 @jwt_required()
-@cache.cached(timeout=90, key_prefix='album')
-def get_home_album(album_id):
-    cached_response = redis_client.get('album')
-    if cached_response:
-        return jsonify(cached_response)
-    
+def get_home_album(album_id):    
     songs = Song.query.filter_by(album_id=album_id).all()
     album = Album.query.get(album_id)
     
@@ -63,12 +58,7 @@ def get_home_album(album_id):
 
 @app.route('/')
 @jwt_required()
-@cache.cached(timeout=90, key_prefix='home')
 def home():
-    cached_response = redis_client.get('home')
-    if cached_response:
-        return jsonify(cached_response)
-    
     songs_with_ratings = db.session.query(Song, db.func.avg(Rating.rating).label('average_rating')) \
         .outerjoin(Rating, Song.song_id == Rating.song_id) \
         .group_by(Song.song_id) \

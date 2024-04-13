@@ -24,6 +24,7 @@ import AdminAlbums from './pages/AdminAlbums.vue';
 import AdminCreators from './pages/AdminCreators.vue';
 import AdminDashboard from './pages/AdminDashboard.vue';
 import AdminUsers from './pages/AdminUsers.vue';
+import AdminLogin from './pages/AdminLogin.vue';
 import Unauthorized from './pages/Unauthorized.vue';
 
 
@@ -48,6 +49,7 @@ const routes = [
     { path: '/playlist/:id', component: SinglePlaylist, meta: { auth: true } },
     { path: '/playlist/update/:id', component: Form_UpdatePlaylist, meta: { auth: true } },
     { path: '/playlist/add/:id', component: Form_AddToPlaylist, meta: { auth: true } },
+    { path: '/admin/login', component: AdminLogin, meta: { auth: false } },
     { path: '/admin/albums', component: AdminAlbums, meta: { auth: true, requiresAdmin: true } },
     { path: '/admin/creators', component: AdminCreators, meta: { auth: true, requiresAdmin: true } },
     { path: '/admin/dashboard', component: AdminDashboard, meta: { auth: true, requiresAdmin: true } },

@@ -4,8 +4,6 @@ from dotenv import load_dotenv
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
-from models import User
-
 load_dotenv()
 
 SMTP_SERVER_HOST = os.environ.get('SMTP_SERVER_HOST')
