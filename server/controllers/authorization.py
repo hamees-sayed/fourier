@@ -81,4 +81,4 @@ def logout():
 
 @app.errorhandler(404)
 def page_not_found(e):
-    return render_template('404.html', title='404'), 404
+    return jsonify({"message": "page not found"}), 404

@@ -2,7 +2,7 @@ from flask import url_for, request
 from flask import jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from types import SimpleNamespace
-from controllers import app, db
+from controllers import app, db, redis_client
 from controllers.utils import user_required, current_user_instance
 from models import User, Song, Playlist, Playlist_song, Creator, Rating
 
@@ -167,6 +167,8 @@ def rate_song(song_id):
         new_rating = Rating(rating=data.rating, user_id=current_user.user_id, song_id=song_id)
         db.session.add(new_rating)
         db.session.commit()
+        if redis_client.exists('flask_cache_home'):
+            redis_client.delete('flask_cache_home') 
         return jsonify({"rating": new_rating.rating, "user_id": new_rating.user_id, "song_id": new_rating.song_id}), 201
     else:
         return jsonify({"error": {"code": 400, "message": "SONG NOT FOUND"}}), 400

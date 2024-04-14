@@ -7,7 +7,8 @@
             <p class="card-text mb-0">{{ creator.email }}</p>
           </div>
           <div>
-            <button @click="toggleBlacklist(creator.id)" class="btn btn-primary">{{ creator.is_blacklisted ? 'Whitelist' : 'Blacklist' }}</button>
+            <button v-if="creator.is_blacklisted" @click="toggleWhitelist(creator.id)" class="btn btn-primary">Whitelist</button>
+            <button v-else @click="toggleBlacklist(creator.id)" class="btn btn-primary">Blacklist</button>
             <button @click="deleteCreator(creator.id)" class="btn btn-primary mx-3">Remove</button>
           </div>
         </div>
@@ -36,6 +37,11 @@
             },
             toggleBlacklist(creatorId){
                 axios.get(`${import.meta.env.VITE_SERVER_URL}/creator/${creatorId}/blacklist`, 
+                { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } })
+                .then(() => location.reload());
+            },
+            toggleWhitelist(creatorId){
+                axios.get(`${import.meta.env.VITE_SERVER_URL}/creator/${creatorId}/whitelist`, 
                 { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } })
                 .then(() => location.reload());
             }

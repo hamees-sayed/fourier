@@ -47,6 +47,11 @@
                 SERVER_URL: import.meta.env.VITE_SERVER_URL,
             }
         },
+        computed: {
+            length() {
+              return this.songs.length;
+            }
+        },
         methods: {
             toggleCollapse(songId) {
                 const collapseElement = document.getElementById(`lyrics-${songId}`);
@@ -57,9 +62,6 @@
                 { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }).then(() => location.reload())
                 .then(() => location.reload());
             },
-            length(){
-                return this.songs.length
-            }
         },
         mounted() {
             axios.get(`${import.meta.env.VITE_SERVER_URL}/song`, 

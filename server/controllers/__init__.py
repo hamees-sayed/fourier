@@ -53,5 +53,7 @@ login_manager.login_message_category = "info"
 SECRET_KEY = os.urandom(32)
 app.config['SECRET_KEY'] = SECRET_KEY
 
+cache.clear()
+
 from controllers import authorization, creator, user, general, admin, utils
 from models import User, Creator, Rating, Album, Song, Playlist, Playlist_song

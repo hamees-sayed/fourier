@@ -58,7 +58,12 @@ def get_home_album(album_id):
 
 @app.route('/')
 @jwt_required()
+@cache.cached(timeout=90, key_prefix='home')
 def home():
+    cached_response = redis_client.get('home')
+    if cached_response:
+        return jsonify(cached_response)
+    
     songs_with_ratings = db.session.query(Song, db.func.avg(Rating.rating).label('average_rating')) \
         .outerjoin(Rating, Song.song_id == Rating.song_id) \
         .group_by(Song.song_id) \

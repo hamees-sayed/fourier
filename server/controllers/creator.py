@@ -1,8 +1,8 @@
-from flask import flash, url_for, request
+from flask import url_for, request
 from flask import jsonify
 from types import SimpleNamespace
 from flask_jwt_extended import jwt_required
-from controllers import app, db, cache, redis_client
+from controllers import app, db, redis_client
 from models import Creator, Album, Song, Rating
 from controllers.utils import creator_required, save_song_file, delete_song_file, song_duration, song_rating_histogram, current_user_instance, creator_or_admin
 
@@ -14,14 +14,30 @@ def creator():
     current_user = current_user_instance()
     songs = Song.query.filter_by(creator_id=current_user.creator.creator_id).count()
     albums = Album.query.filter_by(creator_id=current_user.creator.creator_id).count()
+    
     songs_and_ratings = db.session.query(Song.song_title, Rating.rating).join(Rating).filter(Song.creator_id == current_user.creator.creator_id).all()
+    
     if len(songs_and_ratings) == 0:
-        song, rating = [], []
+        song_titles, ratings = [], []
     else:
-        song, rating = zip(*songs_and_ratings)
-        
-    rating = [0 if r is None else r for r in rating]
-    song_rating_hist = song_rating_histogram(song, rating)
+        song_titles, ratings = zip(*songs_and_ratings)
+    
+    song_avg_ratings = {}
+    for song_title, rating in zip(song_titles, ratings):
+        if song_title not in song_avg_ratings:
+            song_avg_ratings[song_title] = [rating]
+        else:
+            song_avg_ratings[song_title].append(rating)
+    
+    song_avg_ratings = {title: sum(ratings) / len(ratings) for title, ratings in song_avg_ratings.items()}
+    
+    song_titles = list(song_avg_ratings.keys())
+    ratings = list(song_avg_ratings.values())
+    
+    ratings = [0 if r is None else r for r in ratings]
+    
+    song_rating_hist = song_rating_histogram(song_titles, ratings)
+    
     data = {
         "username": current_user.username,
         "num_of_songs": songs,
@@ -40,15 +56,15 @@ def new_album():
     current_user = current_user_instance()
     album_creator = Creator.query.filter_by(user_id=current_user.user_id).first()
 
-    # Check if an album with the same name already exists for the current user
     existing_album = Album.query.filter_by(creator_id=album_creator.creator_id, album_name=data.album_name).first()
     if existing_album:
         return jsonify({"error": {"code": 400, "message": "ALBUM ALREADY EXISTS"}}), 400
 
-    # Create a new album if it doesn't exist
     album = Album(creator_id=album_creator.creator_id, album_name=data.album_name, genre=data.album_genre)
     if redis_client.exists("flask_cache_albums"):
         redis_client.delete("flask_cache_albums")
+    if redis_client.exists('flask_cache_admin_albums'):
+        redis_client.delete('flask_cache_admin_albums')
     db.session.add(album)
     db.session.commit()
     return jsonify({
@@ -89,6 +105,8 @@ def delete_album(album_id):
         db.session.delete(album)
         if redis_client.exists("flask_cache_albums"):
             redis_client.delete("flask_cache_albums")
+        if redis_client.exists('flask_cache_admin_albums'):
+            redis_client.delete('flask_cache_admin_albums')
         db.session.commit()
         return jsonify({"message": "Album deleted successfully!"}), 200
     else:
@@ -107,6 +125,8 @@ def update_album(album_id):
         album.genre = data.album_genre
         if redis_client.exists("flask_cache_albums"):
             redis_client.delete("flask_cache_albums")
+        if redis_client.exists('flask_cache_admin_albums'):
+            redis_client.delete('flask_cache_admin_albums')
         db.session.commit()
         return jsonify({
             "creator_id": album.creator_id,
@@ -126,21 +146,17 @@ def new_song():
     if 'song_file' not in request.files:
         return jsonify({"error": {"code": 400, "message": "MISSING SONG FILE"}}), 400
 
-    # Extract data from form
     song_title = request.form.get('song_title')
     genre = request.form.get('song_genre')
     album_id = request.form.get('album_id', 0)
     lyrics = request.form.get('lyrics', "Lyrics not available.")
     song_file = request.files['song_file']
 
-    # Validate input data
     if not song_title or not genre or not song_file:
         return jsonify({"error": {"code": 400, "message": "MISSING DATA"}}), 400
 
-    # Save song file
     song_file_name = save_song_file(song_file)
 
-    # Create new Song instance
     song = Song(
         album_id=album_id,
         creator_id=current_user.creator.creator_id,
@@ -151,11 +167,12 @@ def new_song():
         duration=song_duration(song_file_name)
     )
 
-    # Add song to database
     db.session.add(song)
     db.session.commit()
+    
+    if redis_client.exists('flask_cache_home'):
+        redis_client.delete('flask_cache_home')
 
-    # Construct response JSON
     response_data = {
         "id": song.song_id,
         "title": song.song_title,
@@ -204,6 +221,8 @@ def delete_song(song_id):
         delete_song_file(song.song_file)
         db.session.delete(song)
         db.session.commit()
+        if redis_client.exists('flask_cache_home'):
+            redis_client.delete('flask_cache_home')
         return jsonify({"message": "Song deleted successfully!"}), 200
     else:
         return jsonify({"error": {"code": 400, "message": "SONG NOT FOUND"}}), 400
@@ -229,7 +248,8 @@ def update_song(song_id):
         else:
             song.lyrics = data.song_lyrics
         db.session.commit()
-        flash('Song updated successfully!', 'success')
+        if redis_client.exists('flask_cache_home'):
+            redis_client.delete('flask_cache_home')
         return jsonify({
             "id": song.song_id,
             "title": song.song_title,

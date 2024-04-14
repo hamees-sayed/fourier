@@ -48,7 +48,12 @@ def admin():
 @app.route("/users")
 @jwt_required()
 @admin_required
+@cache.cached(timeout=90, key_prefix='users')
 def users():    
+    cached_response = redis_client.get("users")
+    if cached_response:
+        return jsonify(cached_response)
+    
     users = User.query.filter_by(is_admin=False, is_creator=False).all()
     data = []
     for user in users:
@@ -63,7 +68,12 @@ def users():
 @app.route("/creators")
 @jwt_required()
 @admin_required
+@cache.cached(timeout=90, key_prefix='creators')
 def creators():
+    cached_response = redis_client.get("creators")
+    if cached_response:
+        return jsonify(cached_response)
+    
     creators = Creator.query.all()
     data = []
     for creator in creators:
@@ -103,7 +113,12 @@ def admin_songs():
 @app.route("/admin/albums")
 @jwt_required()
 @admin_required
+@cache.cached(timeout=90, key_prefix='admin_albums')
 def admin_albums():
+    cached_response = redis_client.get("admin_albums")
+    if cached_response:
+        return jsonify(cached_response)
+
     albums = db.session.query(Album, Creator).join(Creator, Album.creator_id == Creator.creator_id).all()
     data = []
     for album, creator in albums:
@@ -125,6 +140,8 @@ def delete_user(user_id):
     playlists = Playlist.query.filter_by(user_id=user_id).all()
 
     if user:
+        if redis_client.exists("flask_cache_users"):
+            redis_client.delete("flask_cache_users")
         db.session.delete(user)
         for rating in ratings:
             db.session.delete(rating)
@@ -153,6 +170,12 @@ def delete_creator(creator_id):
         db.session.commit()
         if redis_client.exists("flask_cache_albums"):
             redis_client.delete("flask_cache_albums")
+        if redis_client.exists('flask_cache_home'):
+            redis_client.delete('flask_cache_home')
+        if redis_client.exists('flask_cache_admin_albums'):
+            redis_client.delete('flask_cache_admin_albums')
+        if redis_client.exists("flask_cache_creators"):
+            redis_client.delete("flask_cache_creators")
         return jsonify({"message": "Creator deleted successfully"}), 200
     else:
         return jsonify({"error": {"code": 400, "message": "CREATOR NOT FOUND"}}), 400
@@ -167,6 +190,12 @@ def blacklist_creator(creator_id):
         db.session.commit()
         if redis_client.exists("flask_cache_albums"):
             redis_client.delete("flask_cache_albums")
+        if redis_client.exists('flask_cache_home'):
+            redis_client.delete('flask_cache_home')
+        if redis_client.exists("flask_cache_creators"):
+            redis_client.delete("flask_cache_creators")
+        if redis_client.exists('flask_cache_admin_albums'):
+            redis_client.delete('flask_cache_admin_albums')
         return jsonify({"message": "Creator blacklisted successfully", "creator_id": creator_id}), 200
     else:
         return jsonify({"error": {"code": 400, "message": "CREATOR NOT FOUND"}}), 400
@@ -181,6 +210,12 @@ def whitelist_creator(creator_id):
         db.session.commit()
         if redis_client.exists("flask_cache_albums"):
             redis_client.delete("flask_cache_albums")
+        if redis_client.exists('flask_cache_home'):
+            redis_client.delete('flask_cache_home')
+        if redis_client.exists("flask_cache_creators"):
+            redis_client.delete("flask_cache_creators")
+        if redis_client.exists('flask_cache_admin_albums'):
+            redis_client.delete('flask_cache_admin_albums')
         return jsonify({"message": "Creator whitelisted successfully", "creator_id": creator_id}), 200
     else:
         return jsonify({"error": {"code": 400, "message": "CREATOR NOT FOUND"}}), 400
@@ -191,6 +226,8 @@ def whitelist_creator(creator_id):
 def song_flagging(song_id):
     song = Song.query.get(song_id)
     if song:
+        if redis_client.exists('flask_cache_home'):
+            redis_client.delete('flask_cache_home')
         if not song.is_flagged:
             song.is_flagged=True
             db.session.commit()
@@ -208,8 +245,10 @@ def song_flagging(song_id):
 def album_flagging(album_id):
     album = Album.query.get(album_id)
     if album:
-        if redis_client.exists("albums"):
-            redis_client.delete("albums")
+        if redis_client.exists("flask_cache_albums"):
+            redis_client.delete("flask_cache_albums")
+        if redis_client.exists('flask_cache_admin_albums'):
+            redis_client.delete('flask_cache_admin_albums')
         if album.is_flagged:
             album.is_flagged=False
             db.session.commit()
