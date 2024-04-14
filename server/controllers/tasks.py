@@ -29,11 +29,26 @@ def mail_creators():
         monthly_avg_song_rating = get_monthly_avg_song_rating(user.creator.creator_id)
         
         songs_and_ratings = db.session.query(Song.song_title, Rating.rating).join(Rating).filter(Song.creator_id == user.creator.creator_id).all()
-        if songs_and_ratings:
-            song_titles, ratings = zip(*songs_and_ratings)
-        else:
+    
+        if len(songs_and_ratings) == 0:
             song_titles, ratings = [], []
+        else:
+            song_titles, ratings = zip(*songs_and_ratings)
+        
+        song_avg_ratings = {}
+        for song_title, rating in zip(song_titles, ratings):
+            if song_title not in song_avg_ratings:
+                song_avg_ratings[song_title] = [rating]
+            else:
+                song_avg_ratings[song_title].append(rating)
+    
+        song_avg_ratings = {title: sum(ratings) / len(ratings) for title, ratings in song_avg_ratings.items()}
+        
+        song_titles = list(song_avg_ratings.keys())
+        ratings = list(song_avg_ratings.values())
+        
         ratings = [0 if r is None else r for r in ratings]
+        
         song_rating_hist = song_rating_histogram(song_titles, ratings)
         
         template = Template(open('./templates/creator_report.html').read())
