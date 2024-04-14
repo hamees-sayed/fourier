@@ -72,6 +72,7 @@ def albums():
                 "id": album.album_id,
                 "title": album.album_name,
                 "genre": album.genre,
+                "is_flagged": album.is_flagged
             })
     return jsonify(data)
     

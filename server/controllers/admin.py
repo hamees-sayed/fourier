@@ -15,7 +15,6 @@ def admin():
         Song.song_title,
         db.func.avg(Rating.rating).label('average_rating')) \
         .outerjoin(Rating, Song.song_id == Rating.song_id) \
-        .filter(Song.is_flagged == False) \
         .group_by(Song.song_title).all()
     
     if len(songs_and_ratings) == 0:
@@ -152,6 +151,8 @@ def delete_creator(creator_id):
         db.session.delete(creator)
         user.is_creator = False
         db.session.commit()
+        if redis_client.exists("flask_cache_albums"):
+            redis_client.delete("flask_cache_albums")
         return jsonify({"message": "Creator deleted successfully"}), 200
     else:
         return jsonify({"error": {"code": 400, "message": "CREATOR NOT FOUND"}}), 400
@@ -164,6 +165,8 @@ def blacklist_creator(creator_id):
     if creator:
         creator.is_blacklisted=True
         db.session.commit()
+        if redis_client.exists("flask_cache_albums"):
+            redis_client.delete("flask_cache_albums")
         return jsonify({"message": "Creator blacklisted successfully", "creator_id": creator_id}), 200
     else:
         return jsonify({"error": {"code": 400, "message": "CREATOR NOT FOUND"}}), 400
@@ -176,6 +179,8 @@ def whitelist_creator(creator_id):
     if creator:
         creator.is_blacklisted=False
         db.session.commit()
+        if redis_client.exists("flask_cache_albums"):
+            redis_client.delete("flask_cache_albums")
         return jsonify({"message": "Creator whitelisted successfully", "creator_id": creator_id}), 200
     else:
         return jsonify({"error": {"code": 400, "message": "CREATOR NOT FOUND"}}), 400

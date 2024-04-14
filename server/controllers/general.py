@@ -15,7 +15,7 @@ def home_albums():
     
     albums = db.session.query(Album, Creator)\
     .join(Creator, Album.creator_id == Creator.creator_id)\
-    .filter(Album.is_flagged == False)\
+    .filter(Album.is_flagged == False, Creator.is_blacklisted == False)\
     .all()
     
     data = []
