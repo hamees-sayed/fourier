@@ -87,7 +87,7 @@
             }
         },
         mounted() {
-          axios.get("https://miniature-space-trout-gv5pxqq6457cvj4w-5000.app.github.dev/song", 
+          axios.get(`${import.meta.env.VITE_SERVER_URL}/song`, 
           { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } })
           .then(response => {
               const song = response.data.find(song => song.id === parseInt(this.$route.params.id));
@@ -96,7 +96,7 @@
               this.formData.lyrics = song.lyrics;
               this.formData.album_id = song.album_id});
               
-          axios.get("https://miniature-space-trout-gv5pxqq6457cvj4w-5000.app.github.dev/album", 
+          axios.get(`${import.meta.env.VITE_SERVER_URL}/album`, 
           { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } })
           .then(response => {
             this.albums = [{id: 0, title: "Release as Single", genre: "None"}, ...response.data];

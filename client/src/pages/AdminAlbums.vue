@@ -46,23 +46,23 @@
             }
         },
         mounted () {
-            axios.get("https://miniature-space-trout-gv5pxqq6457cvj4w-5000.app.github.dev/admin/albums", 
+            axios.get(`${import.meta.env.VITE_SERVER_URL}/admin/albums`, 
             { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } })
             .then(response => this.albums = response.data)
         },
         methods: {
             deleteAlbum(albumId) {
-                axios.get(`https://miniature-space-trout-gv5pxqq6457cvj4w-5000.app.github.dev/album/${albumId}/delete`, 
+                axios.get(`${import.meta.env.VITE_SERVER_URL}/album/${albumId}/delete`, 
                 { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } })
                 .then(() => location.reload());
             },
             flag(id){
-                axios.get(`https://miniature-space-trout-gv5pxqq6457cvj4w-5000.app.github.dev/flag/${id}/album`, 
+                axios.get(`${import.meta.env.VITE_SERVER_URL}/flag/${id}/album`, 
                 { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } })
                 .then(() => location.reload());
             },
             search() {
-                axios.get("https://miniature-space-trout-gv5pxqq6457cvj4w-5000.app.github.dev/admin/albums/search", 
+                axios.get(`${import.meta.env.VITE_SERVER_URL}/admin/albums/search`, 
                 { params: { q: this.searchTerm }, headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } })
                 .then(response => this.albums = response.data)
             }

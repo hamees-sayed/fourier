@@ -41,13 +41,13 @@
     mounted () {
           this.is_admin = localStorage.getItem("is_admin");
           this.is_creator = localStorage.getItem("is_creator");
-          axios.get("https://miniature-space-trout-gv5pxqq6457cvj4w-5000.app.github.dev/albums", 
+          axios.get(`${import.meta.env.VITE_SERVER_URL}/albums`, 
           { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } })
           .then(response => this.data = response.data)
     },
     methods: {
         search() {
-            axios.get("https://miniature-space-trout-gv5pxqq6457cvj4w-5000.app.github.dev/albums/search", 
+            axios.get(`${import.meta.env.VITE_SERVER_URL}/albums/search`, 
             { params: { q: this.searchTerm }, headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } })
             .then(response => this.data = response.data)
         },

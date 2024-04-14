@@ -55,7 +55,7 @@ export default {
         },
     },
     mounted() {
-        axios.get(`https://miniature-space-trout-gv5pxqq6457cvj4w-5000.app.github.dev/playlist/${this.id}`, 
+        axios.get(`${import.meta.env.VITE_SERVER_URL}/playlist/${this.id}`, 
         { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } })
         .then(response => {
             this.playlist_name = response.data.playlist.playlist_name;

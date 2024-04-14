@@ -64,7 +64,7 @@
       }
     },
     mounted(){
-        axios.get("https://miniature-space-trout-gv5pxqq6457cvj4w-5000.app.github.dev/album/"+parseInt(this.$route.params.id), 
+        axios.get(`${import.meta.env.VITE_SERVER_URL}/album/${parseInt(this.$route.params.id)}`, 
         { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } })
         .then(response => {
             this.formData.album_name = response.data.album.album_name;

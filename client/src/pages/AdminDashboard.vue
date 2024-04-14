@@ -31,7 +31,7 @@
             };
         },
         mounted () {
-            axios.get("https://miniature-space-trout-gv5pxqq6457cvj4w-5000.app.github.dev/admin", 
+            axios.get(`${import.meta.env.VITE_SERVER_URL}/admin`, 
             { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } })
             .then(response => {
                 this.totalUsers = response.data.users;

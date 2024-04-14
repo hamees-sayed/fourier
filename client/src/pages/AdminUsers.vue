@@ -24,13 +24,13 @@
           };
       },
       mounted() {
-          axios.get("https://miniature-space-trout-gv5pxqq6457cvj4w-5000.app.github.dev/users", 
+          axios.get(`${import.meta.env.VITE_SERVER_URL}/users`, 
           { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } })
           .then(response => this.users = response.data)
       },
       methods: {
           deleteUser(userId) {
-            axios.get(`https://miniature-space-trout-gv5pxqq6457cvj4w-5000.app.github.dev/user/${userId}/delete`, 
+            axios.get(`${import.meta.env.VITE_SERVER_URL}/user/${userId}/delete`, 
               { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } })
               .then(() => location.reload());
           },

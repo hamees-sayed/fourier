@@ -7,7 +7,7 @@ export default {
             email: payload.email,
             password: payload.password
         }
-        let response = await Axios.post("https://miniature-space-trout-gv5pxqq6457cvj4w-5000.app.github.dev//login", postData);
+        let response = await Axios.post(`${import.meta.env.VITE_SERVER_URL}/login`, postData);
         if (response.status === 201) {
             localStorage.setItem("token", response.data.token);
             localStorage.setItem("username", response.data.username);
@@ -29,7 +29,7 @@ export default {
             email: payload.email,
             password: payload.password
         }
-        let response = await Axios.post("https://miniature-space-trout-gv5pxqq6457cvj4w-5000.app.github.dev/register", postData);
+        let response = await Axios.post(`${import.meta.env.VITE_SERVER_URL}/register`, postData);
         if (response.status === 200) {
             context.commit(SET_USER_INFO_MUTATION, {
                 name: response.data.username,
@@ -45,7 +45,7 @@ export default {
         let postData = {
             username: payload.username,
         }
-        let response = await Axios.post("https://miniature-space-trout-gv5pxqq6457cvj4w-5000.app.github.dev/register_creator", 
+        let response = await Axios.post(`${import.meta.env.VITE_SERVER_URL}/register_creator`, 
         postData,
         { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } });
         if (response.status === 201) {
@@ -59,7 +59,7 @@ export default {
             playlist_name: payload.playlist_name,
             playlist_desc: payload.playlist_desc
         }
-        let response = await Axios.post("https://miniature-space-trout-gv5pxqq6457cvj4w-5000.app.github.dev/playlist/new", 
+        let response = await Axios.post(`${import.meta.env.VITE_SERVER_URL}/playlist/new`, 
         postData,
         { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } });
         if (response.status === 201) {
@@ -71,7 +71,7 @@ export default {
             playlist_name: payload.playlist_name,
             playlist_desc: payload.playlist_desc
         }
-        let response = await Axios.post(`https://miniature-space-trout-gv5pxqq6457cvj4w-5000.app.github.dev/playlist/${payload.playlist_id}/update`, 
+        let response = await Axios.post(`${import.meta.env.VITE_SERVER_URL}/playlist/${payload.playlist_id}/update`, 
         postData,
         { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } });
         if (response.status === 201) {
@@ -82,7 +82,7 @@ export default {
         let postData = {
             playlist_id: payload.playlist_id,
         }
-        let response = await Axios.post(`https://miniature-space-trout-gv5pxqq6457cvj4w-5000.app.github.dev/playlist/add/${payload.song_id}`, 
+        let response = await Axios.post(`${import.meta.env.VITE_SERVER_URL}/playlist/add/${payload.song_id}`, 
         postData,
         { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } });
         if (response.status === 201) {
@@ -94,7 +94,7 @@ export default {
             album_name: payload.title,
             album_genre: payload.genre
         }
-        let response = await Axios.post(`https://miniature-space-trout-gv5pxqq6457cvj4w-5000.app.github.dev/album/new`,
+        let response = await Axios.post(`${import.meta.env.VITE_SERVER_URL}/album/new`,
         postData,
         {headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } });
     },
@@ -103,7 +103,7 @@ export default {
             album_name: payload.title,
             album_genre: payload.genre
         }
-        let response = await Axios.post(`https://miniature-space-trout-gv5pxqq6457cvj4w-5000.app.github.dev/album/${payload.album_id}/update`,
+        let response = await Axios.post(`${import.meta.env.VITE_SERVER_URL}/album/${payload.album_id}/update`,
         postData,
         {headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } });
     },
@@ -115,7 +115,7 @@ export default {
             lyrics: payload.lyrics,
             song_file: payload.song_file,
         }
-        let response = await Axios.post(`https://miniature-space-trout-gv5pxqq6457cvj4w-5000.app.github.dev/song/new`,
+        let response = await Axios.post(`${import.meta.env.VITE_SERVER_URL}/song/new`,
         postData,
         {headers: { Authorization: `Bearer ${localStorage.getItem("token")}`, 'Content-Type': 'multipart/form-data' } });
     },
@@ -126,7 +126,7 @@ export default {
             album_id: payload.album_id,
             song_lyrics: payload.lyrics,
         }
-        let response = await Axios.post(`https://miniature-space-trout-gv5pxqq6457cvj4w-5000.app.github.dev/song/${payload.song_id}/update`,
+        let response = await Axios.post(`${import.meta.env.VITE_SERVER_URL}/song/${payload.song_id}/update`,
         postData,
         {headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } });
     }

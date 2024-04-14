@@ -29,7 +29,7 @@
             <pre>{{ song.lyrics }}</pre>
           </div>
           <audio class="w-100" controls>
-            <source :src="'https://miniature-space-trout-gv5pxqq6457cvj4w-5000.app.github.dev'+song.song_file_url" type="audio/mp3" />
+            <source :src="`${SERVER_URL}${song.song_file_url}`" type="audio/mp3" />
           </audio>
           <router-link :to="'/playlist/add/'+song.song_id" class="btn btn-primary mx-2">Add to Playlist</router-link>
           <a @click="handleRateClick(song.song_id)" class="btn btn-primary">Rate</a>
@@ -60,7 +60,7 @@
             <pre>{{ song.lyrics }}</pre>
           </div>
           <audio class="w-100" controls>
-            <source :src="'https://miniature-space-trout-gv5pxqq6457cvj4w-5000.app.github.dev'+song.song_file_url" type="audio/mp3" />
+            <source :src="`${SERVER_URL}${song.song_file_url}`" type="audio/mp3" />
           </audio>
           <a v-if="song.is_flagged" @click="flag(song.song_id)" class="btn btn-primary mx-2">Unflag</a>
           <a v-else @click="flag(song.song_id)" class="btn btn-primary mx-2">Flag</a>
@@ -82,6 +82,7 @@ export default {
         return {
             data: [],
             searchTerm: '',
+            SERVER_URL: import.meta.env.VITE_SERVER_URL,
         };
     },
   computed: {
@@ -92,7 +93,7 @@ export default {
     })
   },
   mounted () {
-        axios.get("https://miniature-space-trout-gv5pxqq6457cvj4w-5000.app.github.dev/",
+        axios.get(import.meta.env.VITE_SERVER_URL,
         { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } })
         .then(response => this.data = response.data)
     },
@@ -102,12 +103,12 @@ export default {
       collapseElement.classList.toggle('show');
     },
     search_user() {
-      axios.get("https://miniature-space-trout-gv5pxqq6457cvj4w-5000.app.github.dev/search",
+      axios.get(`${import.meta.env.VITE_SERVER_URL}/search`,
         { params: { q: this.searchTerm }, headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } })
         .then(response => this.data = response.data)
     },
     search_admin() {
-      axios.get("https://miniature-space-trout-gv5pxqq6457cvj4w-5000.app.github.dev/admin/search",
+      axios.get(`${import.meta.env.VITE_SERVER_URL}/admin/search`,
         { params: { q: this.searchTerm }, headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } })
         .then(response => this.data = response.data)
     },
@@ -115,12 +116,12 @@ export default {
       this.$router.push(`/rate/${id}`);
     },
     flag(id){
-      axios.get(`https://miniature-space-trout-gv5pxqq6457cvj4w-5000.app.github.dev/flag/${id}/song`,
+      axios.get(`${import.meta.env.VITE_SERVER_URL}/flag/${id}/song`,
         { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } })
         .then(() => location.reload());
     },
     remove(id){
-      axios.get(`https://miniature-space-trout-gv5pxqq6457cvj4w-5000.app.github.dev/song/${id}/delete`,
+      axios.get(`${import.meta.env.VITE_SERVER_URL}/song/${id}/delete`,
         { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } })
         .then(() => location.reload());
     }

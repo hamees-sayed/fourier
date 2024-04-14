@@ -24,18 +24,18 @@
             }
         },
         mounted(){
-            axios.get("https://miniature-space-trout-gv5pxqq6457cvj4w-5000.app.github.dev/creators", 
+            axios.get(`${import.meta.env.VITE_SERVER_URL}/creators`, 
             { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } })
             .then(response => this.creators = response.data)
         },
         methods: {
             deleteCreator(creatorId){
-                axios.get(`https://miniature-space-trout-gv5pxqq6457cvj4w-5000.app.github.dev/creator/${creatorId}/delete`, 
+                axios.get(`${import.meta.env.VITE_SERVER_URL}/creator/${creatorId}/delete`, 
                 { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } })
                 .then(() => location.reload());
             },
             toggleBlacklist(creatorId){
-                axios.get(`https://miniature-space-trout-gv5pxqq6457cvj4w-5000.app.github.dev/creator/${creatorId}/blacklist`, 
+                axios.get(`${import.meta.env.VITE_SERVER_URL}/creator/${creatorId}/blacklist`, 
                 { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } })
                 .then(() => location.reload());
             }

@@ -27,7 +27,7 @@
               <pre>Lyrics not Available</pre>
             </div>
             <audio class="w-100" controls>
-                <source :src="'https://miniature-space-trout-gv5pxqq6457cvj4w-5000.app.github.dev'+song.song_file_url" type="audio/mp3" />
+                <source :src="`${SERVER_URL}/${song.song_file_url}`" type="audio/mp3" />
             </audio>
             <router-link :to="'/creator/song/update/'+song.id" class="btn btn-primary mx-2">Update</router-link>
             <button @click="deleteSong(song.id)" class="btn btn-primary">Delete</button>
@@ -44,6 +44,7 @@
         data () {
             return {
                 songs: [],
+                SERVER_URL: import.meta.env.VITE_SERVER_URL,
             }
         },
         methods: {
@@ -52,7 +53,7 @@
                 collapseElement.classList.toggle('show');
             },
             deleteSong(songId) {
-                axios.get(`https://miniature-space-trout-gv5pxqq6457cvj4w-5000.app.github.dev/song/${songId}/delete`, 
+                axios.get(`${import.meta.env.VITE_SERVER_URL}/song/${songId}/delete`, 
                 { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }).then(() => location.reload())
                 .then(() => location.reload());
             },
@@ -61,7 +62,7 @@
             }
         },
         mounted() {
-            axios.get("https://miniature-space-trout-gv5pxqq6457cvj4w-5000.app.github.dev/song", 
+            axios.get(`${import.meta.env.VITE_SERVER_URL}/song`, 
             { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } })
             .then(response => {
                 this.songs = response.data

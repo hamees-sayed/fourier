@@ -17,7 +17,7 @@
                     <pre>{{ song.lyrics }}</pre>
                 </div>
                 <audio class="w-100" controls>
-                    <source :src="'https://miniature-space-trout-gv5pxqq6457cvj4w-5000.app.github.dev'+song.song_file_url" type="audio/mp3" />
+                    <source :src="`${SERVER_URL}/${song.song_file_url}`" type="audio/mp3" />
                 </audio>
                 <router-link :to="'/playlist/add/'+song.id" class="btn btn-primary mx-2">Add to Playlist</router-link>
                 <a @click="handleRateClick(song.id)" class="btn btn-primary">Rate</a>
@@ -39,6 +39,7 @@
                 id: this.$route.params.id,
                 data: [],
                 album: {},
+                SERVER_URL: import.meta.env.VITE_SERVER_URL,
             }
         },
         computed: {
@@ -47,7 +48,7 @@
             })
         },
         mounted () {
-            axios.get(`https://miniature-space-trout-gv5pxqq6457cvj4w-5000.app.github.dev/albums/${this.id}`, 
+            axios.get(`${import.meta.env.VITE_SERVER_URL}/albums/${this.id}`, 
             { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } })
             .then(response => {
                 this.data = response.data.songs;

@@ -3,6 +3,9 @@
       <form @submit.prevent="rateSong" class="needs-validation" novalidate>
         <fieldset class="form-group">
           <legend class="border-bottom mb-2">Rate Song</legend>
+          <div v-if="serverError" class="alert alert-danger">
+            {{ serverError }}
+          </div>
           <div class="form-group">
             <br>
             <select v-model="selected">
@@ -29,15 +32,33 @@ export default {
   data() {
     return {
       selected: 1,
+      serverError: '',
     };
   },
   methods: {
     rateSong() {
-      axios.post(`https://miniature-space-trout-gv5pxqq6457cvj4w-5000.app.github.dev${this.$route.path}`, 
+      axios.post(`${import.meta.env.VITE_SERVER_URL}${this.$route.path}`, 
       { rating: this.selected },
       { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } })
-      .then(() => {this.$router.push("/")})
-    }
+      .then(() => {
+              this.$router.push('/');
+            })
+            .catch(error => {
+              this.serverError = this.getErrorMessage(error.response.data.error.message);
+          })
+    },
+    getErrorMessage(error) {
+        switch(error) {
+          case "ALREADY RATED" : return "Already Rated.";
+          default: return "Unexpected error occurred. Please try again later.";
+        }
+    },
   }
 };
 </script>
+
+  <style scoped>
+  .invalid-feedback {
+    color: red;
+  }
+  </style>
