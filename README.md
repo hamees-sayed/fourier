@@ -22,6 +22,10 @@ Make the scripts executable:
 $ chmod +x run.sh
 $ chmod +x worker.sh
 ```
+Start Redis Server: 
+```bash
+$ sudo service redis-server start
+```
 Start client/server:  
 ```bash
 $ ./run.sh
