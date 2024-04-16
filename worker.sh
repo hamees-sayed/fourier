@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Start Redis server
+sudo service redis-server start &
+
 # Change directory to the server folder
 cd server
 
