@@ -29,7 +29,7 @@
             <pre>{{ song.lyrics }}</pre>
           </div>
           <audio class="w-100" controls>
-            <source :src="`${SERVER_URL}${song.song_file_url}`" type="audio/mp3" />
+            <source :src="`${SERVER_URL}/${song.song_file_url}`" type="audio/mp3" />
           </audio>
           <router-link :to="'/playlist/add/'+song.song_id" class="btn btn-primary mx-2">Add to Playlist</router-link>
           <a @click="handleRateClick(song.song_id)" class="btn btn-primary">Rate</a>
@@ -60,7 +60,7 @@
             <pre>{{ song.lyrics }}</pre>
           </div>
           <audio class="w-100" controls>
-            <source :src="`${SERVER_URL}${song.song_file_url}`" type="audio/mp3" />
+            <source :src="`${SERVER_URL}/${song.song_file_url}`" type="audio/mp3" />
           </audio>
           <a v-if="song.is_flagged" @click="flag(song.song_id)" class="btn btn-primary mx-2">Unflag</a>
           <a v-else @click="flag(song.song_id)" class="btn btn-primary mx-2">Flag</a>

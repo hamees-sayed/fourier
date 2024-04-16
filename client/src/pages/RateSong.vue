@@ -37,7 +37,7 @@ export default {
   },
   methods: {
     rateSong() {
-      axios.post(`${import.meta.env.VITE_SERVER_URL}${this.$route.path}`, 
+      axios.post(`${import.meta.env.VITE_SERVER_URL}/${this.$route.path}`, 
       { rating: this.selected },
       { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } })
       .then(() => {
