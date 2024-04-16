@@ -17,11 +17,8 @@ Install Mailhog:
 ---
 
 ## Start App: 
-Make the scripts executable:
-```bash
-$ chmod +x run.sh
-$ chmod +x worker.sh
-```
+Save the Environment Variables in the `.env` files.    
+
 Start Redis Server: 
 ```bash
 $ sudo service redis-server start
